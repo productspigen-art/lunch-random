@@ -1,5 +1,5 @@
 (() => {
-  const SCHEMA_VERSION = 5;
+  const SCHEMA_VERSION = 6;
 
   const DEFAULT_CATEGORIES = [
     { id: 'korean', name: '한식' },
@@ -182,6 +182,16 @@
     if(ver < SCHEMA_VERSION){ ensureDefaultsMerged(); purgeNonMeal(); storage.set('lm_schema_version', SCHEMA_VERSION); saveState(); }
   }
 
+  // Always start fresh on load: no sticky filters/situations
+  function freshResetOnLoad(){
+    try{
+      state.selectedCats = new Set(state.categories.map(c=>c.id));
+      state.context = { situation: [] };
+      state.lastPick = null;
+      saveState();
+    }catch{}
+  }
+
   // Situation UI
   const SITUATION_OPTS = [
     { id:'quick', label:'빨리 먹고 싶음' },
@@ -287,12 +297,8 @@
   }
 
   function suggestionPool(){
-    let list = basePool().filter(it=>matchesSituation(it, state.context.situation));
-    if(state.nearby && state.nearby.ready && state.nearby.presentCats.length){
-      const set=new Set(state.nearby.presentCats); const near=list.filter(it=>set.has(it.cat)); if(near.length) list=near;
-    }
-    const rules = rulesFromContext();
-    return filterByRules(list, rules);
+    // Broad default pool for recommendations (ignore situation/nearby to avoid over-narrowing)
+    return basePool();
   }
 
   function chooseAndShow(){
@@ -328,6 +334,7 @@
 
   // Init
   migrateIfNeeded();
+  freshResetOnLoad();
   renderContext();
   renderSeasonal();
   setNearbyInfo();
