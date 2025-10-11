@@ -308,7 +308,7 @@
   // Rolling marquee of names
   let rollingTimer=null;
   function startRolling(){ if(rollingTimer) return; els.resultSection&&(els.resultSection.hidden=false);
-    rollingTimer = setInterval(()=>{ const list = suggestionPool(); if(!list.length) return; const n=list[Math.floor(Math.random()*list.length)].name; updateResultUI(n); }, 110);
+    rollingTimer = setInterval(()=>{ const list = basePool(); if(!list.length) return; const n=list[Math.floor(Math.random()*list.length)].name; updateResultUI(n); }, 110);
   }
   function stopRolling(){ if(rollingTimer){ clearInterval(rollingTimer); rollingTimer=null; } }
 
