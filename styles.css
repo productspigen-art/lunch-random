@@ -64,7 +64,8 @@ body{
 .link-btn{background:transparent;color:var(--primary);padding:6px 8px}
 
 .result-card{display:grid;gap:10px}
-.result{font-size:1.6rem;font-weight:700;text-align:center;padding:8px;color:#a32600}
+.large-result{min-height:140px;display:flex;align-items:center;justify-content:center}
+.result{font-size:2.2rem;font-weight:800;text-align:center;padding:12px;color:#a32600;letter-spacing:.2px}
 .result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 
 .add-form{display:grid;grid-template-columns:1fr minmax(120px, 1fr) auto;gap:8px}
@@ -86,7 +87,7 @@ body{
 
 @media (min-width: 640px){
   .app-header h1{font-size:2rem}
-  .result{font-size:2rem}
+  .result{font-size:3rem}
 }
 
 /* Nearby settings */
