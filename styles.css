@@ -103,3 +103,27 @@ body{
 /* Weather/Mood chips grouping */
 .chips-group{display:grid;gap:8px}
 .group-label{color:var(--muted);font-size:.9rem}
+
+/* Compact info card for seasonal tips */
+.info-card{
+  padding:10px;
+  margin:6px 0 12px;
+  background:#fffdf9;
+  border-color:#f6e8dd;
+}
+.info-card .card-header h2{
+  font-size:.95rem;
+  color:#9a6a52;
+}
+.info-card .chips{gap:6px}
+.info-card .chip{
+  padding:6px 10px;
+  font-size:.85rem;
+  background:#fff1e8;
+  border-color:#f3d7c7;
+}
+.info-card .chip[aria-selected="true"]{
+  /* info chips are non-interactive; keep subtle */
+  background:#ffd9c9;
+  color:#7a3a22;
+}
