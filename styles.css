@@ -95,9 +95,7 @@ body{
 .muted{color:var(--muted)}
 .small{font-size:.9rem}
 
-/* Ads */
-.ad-card{padding:8px}
-.ad-card ins.adsbygoogle{width:100%}
+/* Ads removed: Auto Ads handles insertion */
 
 /* Weather/Mood chips grouping */
 .chips-group{display:grid;gap:8px}
