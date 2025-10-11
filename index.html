@@ -51,13 +51,26 @@
         <div id="result" class="result">무엇을 추천할까요?</div>
       </section>
 
-      <section aria-labelledby="seasonal-title" class="card info-card">
-        <div class="card-header">
-          <h2 id="seasonal-title">요즘 제철 음식</h2>
-          <div id="seasonalMeta" class="muted small"></div>
-        </div>
-        <div id="seasonalList" class="chips" aria-live="polite"></div>
-      </section>
+      <div class="info-row">
+        <section aria-labelledby="seasonal-title" class="card info-card">
+          <div class="card-header">
+            <h2 id="seasonal-title">요즘 제철 음식</h2>
+            <div id="seasonalMeta" class="muted small"></div>
+          </div>
+          <div id="seasonalList" class="chips" aria-live="polite"></div>
+        </section>
+
+        <section aria-labelledby="contextpick-title" class="card info-card context-card">
+          <div class="card-header">
+            <h2 id="contextpick-title">지금 인기 선택</h2>
+            <div id="contextMeta" class="muted small"></div>
+          </div>
+          <div class="best-wrap">
+            <div id="contextBest" class="best-title">계산 중...</div>
+            <div id="contextWhy" class="muted small"></div>
+          </div>
+        </section>
+      </div>
 
       
     </main>

@@ -127,3 +127,16 @@ body{
   background:#ffd9c9;
   color:#7a3a22;
 }
+
+/* Seasonal list 3-column grid and info/context row layout */
+.info-row{display:grid;gap:10px}
+@media (min-width: 700px){.info-row{grid-template-columns:1fr 1fr}}
+.info-card #seasonalList{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.info-card #seasonalList .chip{display:block;text-align:center}
+
+/* Context pick styles */
+.context-card .best-wrap{display:grid;gap:4px}
+.context-card .best-title{font-size:1.25rem;font-weight:800;color:#a32600}

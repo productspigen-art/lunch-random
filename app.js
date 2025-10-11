@@ -268,6 +268,10 @@
     clearContextBtn: document.getElementById('clearContextBtn'),
     seasonalList: document.getElementById('seasonalList'),
     seasonalMeta: document.getElementById('seasonalMeta'),
+    seasonalTitle: document.getElementById('seasonal-title'),
+    contextMeta: document.getElementById('contextMeta'),
+    contextBest: document.getElementById('contextBest'),
+    contextWhy: document.getElementById('contextWhy'),
     weatherInfo: document.getElementById('weatherInfo'),
     nearbyInfo: document.getElementById('nearbyInfo'),
   };
@@ -291,7 +295,7 @@
       if(!Array.isArray(saved.situation)) saved.situation = [];
       return { situation: saved.situation };
     })(),
-    weather: { ready:false, summary:null },
+    weather: { ready:false, summary:null, code:null, temp:null },
     location: storage.get('lm_location', null), // {lat,lng,ts}
     nearby: storage.get('lm_nearby_presence', { ready:false, presentCats: [], radius: 1200, ts: 0 })
   };
@@ -410,9 +414,91 @@
       chip.textContent = name;
       els.seasonalList.appendChild(chip);
     });
-    if(els.seasonalMeta){
-      const monthLabel = now.toLocaleString('ko-KR', { month: 'long' });
-      els.seasonalMeta.textContent = `${monthLabel} 기준`;
+    const monthLabel = now.toLocaleString('ko-KR', { month: '2-digit' }).replace(/^0/,'');
+    if(els.seasonalMeta) els.seasonalMeta.textContent = `업데이트됨`;
+    if(els.seasonalTitle) els.seasonalTitle.textContent = `${monthLabel}월 제철음식`;
+  }
+
+  function summarizeContext(){
+    const parts = [];
+    const h = new Date().getHours();
+    const hourLabel = `${h}시`;
+    parts.push(hourLabel);
+    if(state.weather && state.weather.summary){ parts.push(state.weather.summary); }
+    if(state.nearby && state.nearby.ready && state.nearby.presentCats && state.nearby.presentCats.length){
+      const labelById = new Map(state.categories.map(c => [c.id, c.name]));
+      const cats = state.nearby.presentCats.slice(0,3).map(id=>labelById.get(id)||id).join('·');
+      parts.push(`근처:${cats}`);
+    }
+    return parts.join(' · ');
+  }
+
+  function rulesFromContext(){
+    const r = { wantCold:false, wantSoup:false, wantSpicy:false, wantQuick:false, wantHeavy:false };
+    const h = new Date().getHours();
+    const t = state.weather?.temp;
+    const code = Number(state.weather?.code);
+    const isRain = [51,53,55,56,57,61,63,65,66,67,80,81,82].includes(code);
+    const isSnow = [71,73,75,77,85,86].includes(code);
+    if(Number.isFinite(t)){
+      if(t >= 27) r.wantCold = true;
+      if(t <= 8) r.wantSoup = true;
+    }
+    if(isRain || isSnow) r.wantSoup = true;
+    if(h>=6 && h<=10) r.wantQuick = true; // 오전 간편
+    if(h>=11 && h<=14) {/* 점심 기본 */}
+    if(h>=17 && h<=21) r.wantHeavy = true;
+    if(h>=22 || h<=3){ r.wantSoup = true; r.wantSpicy = true; }
+    // include user's situation choices strictly
+    const S = state.context.situation || [];
+    if(S.includes('light')) { r.wantHeavy = false; r.wantQuick = true; }
+    if(S.includes('heavy')) r.wantHeavy = true;
+    if(S.includes('spicy')) r.wantSpicy = true;
+    if(S.includes('soup')) r.wantSoup = true;
+    if(S.includes('quick')||S.includes('onmove')||S.includes('solo')) r.wantQuick = true;
+    if(S.includes('hangout')||S.includes('share')) r.wantHeavy = true;
+    return r;
+  }
+
+  function filterByRules(list, r){
+    const tests = [];
+    if(r.wantCold) tests.push(it => /냉면|냉모밀|소바|냉우동|포케|샐러드/.test(it.name) || it.cat==='salad' || it.cat==='vietnamese');
+    if(r.wantSoup) tests.push(it => /찌개|국|탕|라멘|우동|짬뽕|칼국수|수제비|수프/.test(it.name));
+    if(r.wantSpicy) tests.push(it => /매운|짬뽕|마라|김치|제육|낙지|떡볶이|부대|쭈꾸미|불닭/.test(it.name));
+    if(r.wantQuick) tests.push(it => it.cat==='sandwich' || it.cat==='fast' || /김밥|샌드위치|토스트|반미|버거|오니기리|덮밥|카레/.test(it.name));
+    if(r.wantHeavy) tests.push(it => ['rice','korean','chinese','western','fast'].includes(it.cat) || /스테이크|치킨|피자|탕수육|찜닭|닭갈비/.test(it.name));
+    if(tests.length===0) return list;
+    const filtered = list.filter(it => tests.every(f => f(it)));
+    return filtered.length ? filtered : list;
+  }
+
+  function renderContextPopular(){
+    if(!els.contextBest) return;
+    // base pool: selected categories; fall back to all
+    let base = state.items.filter(it => state.selectedCats.has(it.cat));
+    if(base.length===0) base = state.items.slice();
+    // nearby bias
+    if(state.nearby && state.nearby.ready && state.nearby.presentCats && state.nearby.presentCats.length){
+      const set = new Set(state.nearby.presentCats);
+      const near = base.filter(it => set.has(it.cat));
+      if(near.length) base = near;
+    }
+    // apply rules
+    const rules = rulesFromContext();
+    let list = filterByRules(base, rules);
+    // pick one deterministically-ish
+    if(list.length===0) list = base;
+    const pick = list[Math.floor(Math.random()*list.length)];
+    els.contextBest.textContent = pick ? pick.name : '추천 준비 중';
+    if(els.contextMeta) els.contextMeta.textContent = summarizeContext();
+    if(els.contextWhy){
+      const why = [];
+      if(rules.wantCold) why.push('더운 날엔 시원하게');
+      if(rules.wantSoup) why.push('따뜻한 국물 인기');
+      if(rules.wantSpicy) why.push('매콤 선호');
+      if(rules.wantQuick) why.push('간편식 선호');
+      if(rules.wantHeavy) why.push('든든한 한 끼');
+      els.contextWhy.textContent = why.join(' · ');
     }
   }
 
@@ -572,10 +658,11 @@
       let code = null; let temp = null;
       if(data.current_weather){ code = data.current_weather.weathercode; temp = data.current_weather.temperature; }
       else if(data.current && data.current.weather_code){ code = data.current.weather_code; temp = data.current.temperature_2m; }
-      const info = mapWeather(code, temp);
-      state.weather = { ready:true, summary: info.text };
-      if(els.weatherInfo) els.weatherInfo.textContent = `현재 날씨: ${info.emoji} ${info.text}`;
-    }catch(e){ if(els.weatherInfo) els.weatherInfo.textContent = ''; }
+    const info = mapWeather(code, temp);
+    state.weather = { ready:true, summary: info.text, code, temp };
+    if(els.weatherInfo) els.weatherInfo.textContent = `현재 날씨: ${info.emoji} ${info.text}`;
+    renderContextPopular();
+  }catch(e){ if(els.weatherInfo) els.weatherInfo.textContent = ''; }
   }
 
   function mapWeather(code, temp){
@@ -616,5 +703,5 @@
   renderSeasonal();
   setNearbyInfo();
   initWeather();
+  renderContextPopular();
 })();
-
