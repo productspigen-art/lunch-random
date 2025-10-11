@@ -1,5 +1,5 @@
 (() => {
-  const SCHEMA_VERSION = 4;
+  const SCHEMA_VERSION = 5;
 
   const DEFAULT_CATEGORIES = [
     { id: 'korean', name: '한식' },
@@ -19,7 +19,6 @@
     { id: 'med', name: '지중해' },
     { id: 'seasia', name: '동남아' },
     { id: 'dessert', name: '디저트' },
-    { id: 'drink', name: '음료/티' },
     { id: 'etc', name: '기타' }
   ];
 
@@ -36,6 +35,7 @@
     { name: '칼국수', cat: 'noodle' },{ name: '수제비', cat: 'noodle' },{ name: '잔치국수', cat: 'noodle' },{ name: '떡볶이', cat: 'noodle' },
     { name: '순대', cat: 'noodle' },{ name: '오뎅', cat: 'noodle' },{ name: '파전', cat: 'korean' },{ name: '감자전', cat: 'korean' },
     { name: '김치전', cat: 'korean' },{ name: '계란말이', cat: 'korean' },{ name: '전복죽', cat: 'rice' },
+    { name: '돼지국밥', cat: 'korean' },{ name: '순대국', cat: 'korean' },{ name: '콩나물국밥', cat: 'korean' },
 
     // 일식
     { name: '초밥', cat: 'japanese' },{ name: '사시미', cat: 'japanese' },{ name: '돈까스', cat: 'japanese' },{ name: '돈카츠', cat: 'japanese' },
@@ -43,6 +43,7 @@
     { name: '냉우동', cat: 'japanese' },{ name: '오므라이스', cat: 'japanese' },{ name: '가라아게', cat: 'japanese' },
     { name: '야끼소바', cat: 'japanese' },{ name: '야끼니쿠', cat: 'japanese' },{ name: '돈부리', cat: 'japanese' },
     { name: '규카츠', cat: 'japanese' },{ name: '스키야키', cat: 'japanese' },{ name: '텐동', cat: 'japanese' },
+    { name: '오야코동', cat: 'japanese' },{ name: '부타동', cat: 'japanese' },{ name: '차슈덮밥', cat: 'japanese' },
     { name: '가츠카레', cat: 'japanese' },{ name: '일본카레', cat: 'japanese' },{ name: '사케동', cat: 'japanese' },
     { name: '미소된장국', cat: 'japanese' },{ name: '타코야끼', cat: 'japanese' },{ name: '냉모밀(소바)', cat: 'japanese' },
     { name: '회덮밥', cat: 'japanese' },{ name: '샤브샤브', cat: 'japanese' },
@@ -67,6 +68,7 @@
     { name: '팟타이', cat: 'thai' },{ name: '나시고렝', cat: 'seasia' },{ name: '락사', cat: 'seasia' },{ name: '미고랭', cat: 'seasia' },
     { name: '카오팟', cat: 'thai' },{ name: '카오만까이', cat: 'thai' },{ name: '똠얌꿍', cat: 'thai' },
     { name: '사테', cat: 'seasia' },{ name: '바쿠테', cat: 'seasia' },{ name: '싱가포르치킨라이스', cat: 'seasia' },
+    { name: '부리또', cat: 'mexican' },{ name: '타코', cat: 'mexican' },{ name: '퀘사디야', cat: 'mexican' },
 
     // 인도/네팔
     { name: '인도커리', cat: 'indian' },{ name: '버터치킨', cat: 'indian' },{ name: '치킨 티카 마살라', cat: 'indian' },
@@ -93,6 +95,7 @@
     { name: '제육덮밥', cat: 'rice' },{ name: '치킨마요덮밥', cat: 'rice' },{ name: '소불고기덮밥', cat: 'rice' },
     { name: '불닭덮밥', cat: 'rice' },{ name: '스팸마요덮밥', cat: 'rice' },{ name: '참치마요덮밥', cat: 'rice' },
     { name: '간장계란밥', cat: 'rice' },{ name: '김치볶음밥', cat: 'rice' },{ name: '볶음밥', cat: 'rice' },
+    { name: '연어덮밥', cat: 'japanese' },
     { name: '비프볼', cat: 'rice' },{ name: '낙지덮밥', cat: 'rice' },
 
     // 브런치/지중해
@@ -105,9 +108,7 @@
     { name: '빙수', cat: 'dessert' },{ name: '케이크', cat: 'dessert' },{ name: '쿠키', cat: 'dessert' },{ name: '마카롱', cat: 'dessert' },
     { name: '크로플', cat: 'dessert' },{ name: '스콘', cat: 'dessert' },{ name: '도넛', cat: 'dessert' },{ name: '와플', cat: 'dessert' },
     { name: '푸딩', cat: 'dessert' },{ name: '아이스크림', cat: 'dessert' },{ name: '젤라또', cat: 'dessert' },
-    { name: '커피', cat: 'drink' },{ name: '차', cat: 'drink' },{ name: '밀크티', cat: 'drink' },{ name: '스무디', cat: 'drink' },
-    { name: '주스', cat: 'drink' },{ name: '에이드', cat: 'drink' },{ name: '버블티', cat: 'drink' },{ name: '아이스초코', cat: 'drink' },
-    { name: '핫초코', cat: 'drink' },
+    
 
     // 기타/퓨전
     { name: '도시락', cat: 'etc' },{ name: '죽(전복/쇠고기 등)', cat: 'etc' },{ name: '카페 런치 세트', cat: 'etc' },
@@ -170,9 +171,15 @@
     const toAdd = DEFAULT_ITEMS.filter(i=>!nameSet.has(i.name));
     if(toAdd.length) state.items = state.items.concat(toAdd);
   }
+  function purgeNonMeal(){
+    // Remove drink category and items, and tighten suggestions to exclude dessert
+    state.items = state.items.filter(i => i.cat !== 'drink');
+    state.categories = state.categories.filter(c => c.id !== 'drink');
+    if(state.selectedCats && state.selectedCats.has('drink')) state.selectedCats.delete('drink');
+  }
   function migrateIfNeeded(){
     const ver = storage.get('lm_schema_version',0);
-    if(ver < SCHEMA_VERSION){ ensureDefaultsMerged(); storage.set('lm_schema_version', SCHEMA_VERSION); saveState(); }
+    if(ver < SCHEMA_VERSION){ ensureDefaultsMerged(); purgeNonMeal(); storage.set('lm_schema_version', SCHEMA_VERSION); saveState(); }
   }
 
   // Situation UI
@@ -271,7 +278,7 @@
 
   function basePool(){
     // Without category UI: default to all categories; honor previously selected if partial
-    let pool = state.items.slice();
+    let pool = state.items.filter(it => it.cat !== 'drink' && it.cat !== 'dessert');
     try{
       const allSel = state.selectedCats && state.selectedCats.size === state.categories.length;
       if(state.selectedCats && state.selectedCats.size>0 && !allSel){ pool = pool.filter(it=>state.selectedCats.has(it.cat)); }
@@ -308,7 +315,7 @@
   // Context popular
   function summarizeContext(){ const parts=[]; const h=new Date().getHours(); parts.push(`${h}시`); if(state.weather?.summary) parts.push(state.weather.summary);
     if(state.nearby?.ready && state.nearby.presentCats.length){ const labelById=new Map(state.categories.map(c=>[c.id,c.name])); const cats=state.nearby.presentCats.slice(0,3).map(id=>labelById.get(id)||id).join('·'); parts.push(`근처:${cats}`); } return parts.join(' · '); }
-  function renderContextPopular(){ if(!els.contextBest) return; let base=suggestionPool(); if(!base.length) base=state.items.slice(); const pick=base[Math.floor(Math.random()*base.length)]; els.contextBest.textContent=pick?pick.name:'추천 준비 중'; const r=rulesFromContext(); const why=[]; if(r.wantCold) why.push('시원한 메뉴'); if(r.wantSoup) why.push('따뜻한 국물'); if(r.wantSpicy) why.push('매콤 인기'); if(r.wantQuick) why.push('간편식 선호'); if(r.wantHeavy) why.push('든든한 한 끼'); if(els.contextWhy) els.contextWhy.textContent = why.join(' · '); }
+  function renderContextPopular(){ if(!els.contextBest) return; let base=suggestionPool(); if(!base.length) base=state.items.filter(it=>it.cat!=='drink'&&it.cat!=='dessert'); const pick=base[Math.floor(Math.random()*base.length)]; els.contextBest.textContent=pick?pick.name:'추천 준비 중'; const r=rulesFromContext(); const why=[]; if(r.wantCold) why.push('시원한 메뉴'); if(r.wantSoup) why.push('따뜻한 국물'); if(r.wantSpicy) why.push('매콤 인기'); if(r.wantQuick) why.push('간편식 선호'); if(r.wantHeavy) why.push('든든한 한 끼'); if(els.contextWhy) els.contextWhy.textContent = why.join(' · '); }
 
   // Weather + Nearby
   function catCuisineMap(){ return { korean:['korean','korea'], japanese:['japanese','sushi','ramen','udon','soba'], chinese:['chinese'], western:['italian','french','steak_house','european','american'], noodle:['noodle','ramen','udon','soba'], rice:[], salad:['salad','healthy'], sandwich:['sandwich','bagel','deli'], fast:['burger','pizza','fried_chicken'], vietnamese:['vietnamese','pho','banh_mi'], thai:['thai'], indian:['indian','nepalese'], mexican:['mexican','tacos','burrito'], brunch:['breakfast','brunch','cafe'], med:['mediterranean','turkish','greek','middle_eastern','kebab','shawarma'], seasia:['indonesian','malaysian','singaporean'], dessert:['ice_cream','cake','waffle','dessert','bakery'], drink:['coffee_shop','cafe','tea','bubble_tea'], etc:[] }; }
