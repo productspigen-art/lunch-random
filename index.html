@@ -9,11 +9,12 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2173296428991687"
             crossorigin="anonymous"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="styles.css?v=2025-01-11-5" />
+    <link rel="stylesheet" href="styles.css?v=2025-01-11-6" />
   </head>
   <body>
     <header class="app-header">
       <h1>점심 뭐 먹지? 🍱</h1>
+      <div class="hero-sub muted small">원클릭으로 메뉴 룰렛 돌리기</div>
       <div id="weatherInfo" class="muted small"></div>
       <div id="nearbyInfo" class="muted small"></div>
     </header>
@@ -21,26 +22,16 @@
     <main class="container">
       
       
-      <section aria-labelledby="context-title" class="card">
-        <div class="card-header">
-          <h2 id="context-title">상황 선택</h2>
-          <button id="clearContextBtn" class="link-btn" type="button">초기화</button>
-        </div>
-        <div class="chips-group">
-          <div class="group-label">상황</div>
-          <div id="situationChips" class="chips" role="listbox" aria-label="상황"></div>
-        </div>
-      </section>
+      
 
-      <section class="actions">
-        <button id="randomBtn" class="primary-btn" type="button" aria-label="랜덤 추천 받기">
-          랜덤 추천!
-        </button>
+      <section class="cta-row">
+        <button id="spinQuickBtn" class="primary-btn cta" type="button" aria-label="랜덤 돌리기">🎰 랜덤 돌리기</button>
+        <button id="spinWithCondBtn" class="secondary-btn cta" type="button" aria-label="조건 정하고 돌리기">🎯 조건 정하고 돌리기</button>
       </section>
 
       <section aria-labelledby="result-title" class="card result-card large-result" id="resultSection">
         <h2 id="result-title" class="sr-only">추천 결과</h2>
-        <div id="result" class="result">메뉴 탐색 중...</div>
+        <div id="result" class="result">메뉴 룰렛 준비!</div>
       </section>
 
       <div class="info-row">
@@ -51,22 +42,28 @@
           <div id="seasonalList" class="chips" aria-live="polite"></div>
         </section>
 
-        <section aria-labelledby="contextpick-title" class="card info-card context-card">
-          <div class="card-header">
-            <h2 id="contextpick-title">지금 인기 선택</h2>
-          </div>
-          <div class="best-wrap">
-            <div id="contextBest" class="best-title">계산 중...</div>
-            <div id="contextWhy" class="muted small"></div>
-          </div>
-        </section>
+        
       </div>
+
+      <!-- 조건 선택 시트 -->
+      <section id="conditionSheet" class="sheet" hidden>
+        <div class="sheet-content card">
+          <div class="card-header">
+            <h2>조건 선택</h2>
+            <button id="closeSheetBtn" class="link-btn" type="button">닫기</button>
+          </div>
+          <div class="chips" id="condChips"></div>
+          <div class="sheet-actions">
+            <button id="applyCondBtn" class="primary-btn" type="button">이 조건으로 돌리기</button>
+          </div>
+        </div>
+      </section>
 
       
     </main>
 
     <footer class="app-footer">만든이: Codex · 로컬에서 가볍게 사용하세요</footer>
 
-    <script src="app.js?v=2025-01-11-5"></script>
+    <script src="app.js?v=2025-01-11-6"></script>
   </body>
   </html>

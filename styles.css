@@ -22,6 +22,7 @@ body{
 
 .app-header{padding:20px 16px 8px;text-align:center;background:linear-gradient(180deg, rgba(255,107,61,.06), transparent)}
 .app-header h1{margin:0;font-size:1.6rem}
+.hero-sub{margin-top:4px}
 .subtitle{margin:4px 0 0;color:var(--muted);font-size:.95rem}
 
 .container{max-width:720px;margin:0 auto;padding:8px 12px 72px}
@@ -49,7 +50,7 @@ body{
 }
 .chip[aria-selected="true"]{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 2px 8px rgba(232,90,44,.25)}
 
-.actions{display:flex;gap:10px;position:sticky;top:0;padding:8px 0;background:linear-gradient(var(--bg), var(--bg))}
+.cta-row{display:flex;gap:10px;position:sticky;top:0;padding:8px 0;background:linear-gradient(var(--bg), var(--bg))}
 .primary-btn,.secondary-btn,.ghost-btn,.link-btn{
   border:none;outline:none;cursor:pointer;
   border-radius:12px; font-weight:600;
@@ -65,7 +66,16 @@ body{
 
 .result-card{display:grid;gap:10px}
 .large-result{min-height:140px;display:flex;align-items:center;justify-content:center}
-.result{font-size:2.2rem;font-weight:800;text-align:center;padding:12px;color:#a32600;letter-spacing:.2px}
+.result{font-size:2.2rem;font-weight:800;text-align:center;padding:12px;color:#a32600;letter-spacing:.2px;perspective:800px}
+
+/* Flip/Roulette animation */
+.flip-start{animation:flip-seq .85s cubic-bezier(.2,.9,.2,1)}
+@keyframes flip-seq{
+  0%{transform:rotateX(0deg);filter:blur(0)}
+  30%{transform:rotateX(50deg);filter:blur(1px)}
+  60%{transform:rotateX(100deg);filter:blur(1.5px)}
+  100%{transform:rotateX(0deg);filter:blur(0)}
+}
 .result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 
 .add-form{display:grid;grid-template-columns:1fr minmax(120px, 1fr) auto;gap:8px}
@@ -143,3 +153,9 @@ body{
 /* Context pick styles */
 .context-card .best-wrap{display:grid;gap:4px}
 .context-card .best-title{font-size:1.25rem;font-weight:800;color:#a32600}
+
+/* Bottom sheet */
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.25);display:grid;place-items:end center}
+.sheet .sheet-content{width:min(720px, 96%);margin:0 0 10px}
+.sheet[hidden]{display:none}
+.sheet-actions{display:flex;justify-content:flex-end;margin-top:10px}
