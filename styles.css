@@ -65,17 +65,30 @@ body{
 .link-btn{background:transparent;color:var(--primary);padding:6px 8px}
 
 .result-card{display:grid;gap:10px}
-.large-result{min-height:140px;display:flex;align-items:center;justify-content:center}
+.large-result{min-height:160px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.large-result{border:1px solid rgba(232,90,44,.18);border-radius:18px;background:#fff;box-shadow:0 12px 28px rgba(232,90,44,.10), 0 2px 4px rgba(0,0,0,.04)}
 .result{font-size:2.2rem;font-weight:800;text-align:center;padding:12px;color:#a32600;letter-spacing:.2px;perspective:800px}
 
 /* Flip/Roulette animation */
-.flip-start{animation:flip-seq .85s cubic-bezier(.2,.9,.2,1)}
+.flip-start{animation:flip-seq .9s cubic-bezier(.2,.9,.2,1)}
 @keyframes flip-seq{
   0%{transform:rotateX(0deg);filter:blur(0)}
   30%{transform:rotateX(50deg);filter:blur(1px)}
   60%{transform:rotateX(100deg);filter:blur(1.5px)}
   100%{transform:rotateX(0deg);filter:blur(0)}
 }
+
+/* Card-like loading shimmer while spinning */
+.large-result.is-spinning::before{
+  content:"";position:absolute;inset:0;background:linear-gradient(180deg,#fff8f3,#fffdf9);
+}
+.large-result.is-spinning::after{
+  content:"";position:absolute;inset:-20%;
+  background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.6), rgba(255,255,255,0));
+  transform:skewX(-10deg);
+  animation:shimmer 1.2s linear infinite;
+}
+@keyframes shimmer{0%{transform:translateX(-60%) skewX(-10deg)}100%{transform:translateX(60%) skewX(-10deg)}}
 .result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 
 .add-form{display:grid;grid-template-columns:1fr minmax(120px, 1fr) auto;gap:8px}
