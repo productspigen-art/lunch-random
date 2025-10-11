@@ -1,0 +1,104 @@
+:root{
+  --bg:#f7f7fb;
+  --text:#1a1a1a;
+  --muted:#6b7280;
+  --primary:#3b82f6;
+  --primary-pressed:#2563eb;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --chip:#eef2ff;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.5;
+}
+
+.app-header{padding:20px 16px 8px;text-align:center}
+.app-header h1{margin:0;font-size:1.6rem}
+.subtitle{margin:4px 0 0;color:var(--muted);font-size:.95rem}
+
+.container{max-width:720px;margin:0 auto;padding:8px 12px 72px}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:14px;
+  margin:10px 0;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+.card-header{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card h2{font-size:1.05rem;margin:0 0 8px}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  border:1px solid var(--border);
+  background:var(--chip);
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:.95rem;
+  cursor:pointer;
+  user-select:none;
+}
+.chip[aria-selected="true"]{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+.actions{display:flex;gap:10px;position:sticky;top:0;padding:8px 0;background:linear-gradient(var(--bg), var(--bg))}
+.primary-btn,.secondary-btn,.ghost-btn,.link-btn{
+  border:none;outline:none;cursor:pointer;
+  border-radius:12px; font-weight:600;
+}
+.primary-btn{flex:1;padding:16px;font-size:1.1rem;color:#fff;background:var(--primary)}
+.primary-btn:active{background:var(--primary-pressed)}
+.secondary-btn{padding:12px 14px;background:#e8f0ff;color:#1849ff}
+.secondary-btn:disabled{opacity:.5;cursor:not-allowed}
+.ghost-btn{padding:10px 12px;background:transparent;border:1px solid var(--border)}
+.link-btn{background:transparent;color:var(--primary);padding:6px 8px}
+
+.result-card{display:grid;gap:10px}
+.result{font-size:1.6rem;font-weight:700;text-align:center;padding:8px}
+.result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+.add-form{display:grid;grid-template-columns:1fr minmax(120px, 1fr) auto;gap:8px}
+.add-form input,.add-form select{
+  width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);
+  font-size:1rem;background:#fff;
+}
+
+.list{display:flex;flex-wrap:wrap;gap:8px}
+.list .item{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:#fff;
+}
+.item .remove{background:transparent;border:none;color:#ef4444;cursor:pointer}
+
+.app-footer{color:var(--muted);text-align:center;padding:24px 12px}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+@media (min-width: 640px){
+  .app-header h1{font-size:2rem}
+  .result{font-size:2rem}
+}
+
+/* Nearby settings */
+.nearby-grid{display:grid;gap:10px}
+.switch-row{display:flex;align-items:center;gap:10px}
+.switch-row input{width:20px;height:20px}
+.label{display:block;color:var(--muted);font-size:.9rem;margin-bottom:4px}
+.loc-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.muted{color:var(--muted)}
+.small{font-size:.9rem}
+
+/* Ads */
+.ad-card{padding:8px}
+.ad-card ins.adsbygoogle{width:100%}
+
+/* Weather/Mood chips grouping */
+.chips-group{display:grid;gap:8px}
+.group-label{color:var(--muted);font-size:.9rem}

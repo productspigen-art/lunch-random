@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>점심메뉴 랜덤추천</title>
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="google-adsense-account" content="ca-pub-XXXXXXXXXXXXXXX" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>점심 뭐 먹지? 🍱</h1>
+      <div id="weatherInfo" class="muted small"></div>
+      <div id="nearbyInfo" class="muted small"></div>
+    </header>
+
+    <main class="container">
+      <section class="card ad-card" aria-label="광고">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-XXXXXXXXXXXXXXX"
+             data-ad-slot="1111111111"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+      </section>
+      <section aria-labelledby="filters-title" class="card">
+        <div class="card-header">
+          <h2 id="filters-title">카테고리 선택</h2>
+          <button id="resetFiltersBtn" class="link-btn" type="button">전체 선택</button>
+        </div>
+        <div id="categoryChips" class="chips" role="listbox" aria-label="카테고리"></div>
+      </section>
+
+      <section aria-labelledby="context-title" class="card">
+        <div class="card-header">
+          <h2 id="context-title">상황 선택</h2>
+          <button id="clearContextBtn" class="link-btn" type="button">초기화</button>
+        </div>
+        <div class="chips-group">
+          <div class="group-label">상황</div>
+          <div id="situationChips" class="chips" role="listbox" aria-label="상황"></div>
+        </div>
+        <p class="muted small">선택한 상황에 ‘완전히 맞는’ 메뉴만 추천합니다.</p>
+      </section>
+
+      <section class="actions">
+        <button id="randomBtn" class="primary-btn" type="button" aria-label="랜덤 추천 받기">
+          랜덤 추천!
+        </button>
+      </section>
+
+      <section aria-labelledby="result-title" class="card result-card" id="resultSection" hidden>
+        <h2 id="result-title" class="sr-only">추천 결과</h2>
+        <div id="result" class="result">무엇을 추천할까요?</div>
+      </section>
+
+      <section aria-labelledby="seasonal-title" class="card">
+        <div class="card-header">
+          <h2 id="seasonal-title">요즘 제철 음식</h2>
+          <div id="seasonalMeta" class="muted small"></div>
+        </div>
+        <div id="seasonalList" class="chips" aria-live="polite"></div>
+      </section>
+
+      <section class="card ad-card" aria-label="광고">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-XXXXXXXXXXXXXXX"
+             data-ad-slot="2222222222"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+      </section>
+    </main>
+
+    <footer class="app-footer">만든이: Codex · 로컬에서 가볍게 사용하세요</footer>
+
+    <script src="app.js"></script>
+  </body>
+  </html>
