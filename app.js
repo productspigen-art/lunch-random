@@ -124,10 +124,8 @@
     clearContextBtn: document.getElementById('clearContextBtn'),
     // seasonal
     seasonalList: document.getElementById('seasonalList'),
-    seasonalMeta: document.getElementById('seasonalMeta'),
     seasonalTitle: document.getElementById('seasonal-title'),
     // context popular
-    contextMeta: document.getElementById('contextMeta'),
     contextBest: document.getElementById('contextBest'),
     contextWhy: document.getElementById('contextWhy'),
     // info
@@ -219,7 +217,6 @@
     els.seasonalList.innerHTML=''; list.forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
     const monthLabel = String(m);
     if(els.seasonalTitle) els.seasonalTitle.textContent = `${monthLabel}월 제철음식`;
-    if(els.seasonalMeta) els.seasonalMeta.textContent = '업데이트됨';
   }
 
   // Nearby info
@@ -311,7 +308,7 @@
   // Context popular
   function summarizeContext(){ const parts=[]; const h=new Date().getHours(); parts.push(`${h}시`); if(state.weather?.summary) parts.push(state.weather.summary);
     if(state.nearby?.ready && state.nearby.presentCats.length){ const labelById=new Map(state.categories.map(c=>[c.id,c.name])); const cats=state.nearby.presentCats.slice(0,3).map(id=>labelById.get(id)||id).join('·'); parts.push(`근처:${cats}`); } return parts.join(' · '); }
-  function renderContextPopular(){ if(!els.contextBest) return; let base=suggestionPool(); if(!base.length) base=state.items.slice(); const pick=base[Math.floor(Math.random()*base.length)]; els.contextBest.textContent=pick?pick.name:'추천 준비 중'; if(els.contextMeta) els.contextMeta.textContent=summarizeContext(); const r=rulesFromContext(); const why=[]; if(r.wantCold) why.push('시원한 메뉴'); if(r.wantSoup) why.push('따뜻한 국물'); if(r.wantSpicy) why.push('매콤 인기'); if(r.wantQuick) why.push('간편식 선호'); if(r.wantHeavy) why.push('든든한 한 끼'); if(els.contextWhy) els.contextWhy.textContent = why.join(' · '); }
+  function renderContextPopular(){ if(!els.contextBest) return; let base=suggestionPool(); if(!base.length) base=state.items.slice(); const pick=base[Math.floor(Math.random()*base.length)]; els.contextBest.textContent=pick?pick.name:'추천 준비 중'; const r=rulesFromContext(); const why=[]; if(r.wantCold) why.push('시원한 메뉴'); if(r.wantSoup) why.push('따뜻한 국물'); if(r.wantSpicy) why.push('매콤 인기'); if(r.wantQuick) why.push('간편식 선호'); if(r.wantHeavy) why.push('든든한 한 끼'); if(els.contextWhy) els.contextWhy.textContent = why.join(' · '); }
 
   // Weather + Nearby
   function catCuisineMap(){ return { korean:['korean','korea'], japanese:['japanese','sushi','ramen','udon','soba'], chinese:['chinese'], western:['italian','french','steak_house','european','american'], noodle:['noodle','ramen','udon','soba'], rice:[], salad:['salad','healthy'], sandwich:['sandwich','bagel','deli'], fast:['burger','pizza','fried_chicken'], vietnamese:['vietnamese','pho','banh_mi'], thai:['thai'], indian:['indian','nepalese'], mexican:['mexican','tacos','burrito'], brunch:['breakfast','brunch','cafe'], med:['mediterranean','turkish','greek','middle_eastern','kebab','shawarma'], seasia:['indonesian','malaysian','singaporean'], dessert:['ice_cream','cake','waffle','dessert','bakery'], drink:['coffee_shop','cafe','tea','bubble_tea'], etc:[] }; }
@@ -332,4 +329,3 @@
   // show rolling names by default
   startRolling();
 })();
-

@@ -137,6 +137,8 @@ body{
   grid-template-columns:repeat(3,minmax(0,1fr));
 }
 .info-card #seasonalList .chip{display:block;text-align:center}
+/* Make seasonal chips informational only */
+.info-card #seasonalList .chip{pointer-events:none;cursor:default;user-select:none;-webkit-tap-highlight-color:transparent}
 
 /* Context pick styles */
 .context-card .best-wrap{display:grid;gap:4px}
