@@ -76,6 +76,7 @@
     activeCatBar: document.getElementById('activeCatBar'),
     activeTagLabel: document.getElementById('activeTagLabel'),
     activeTagBar: document.getElementById('activeTagBar'),
+    resultBlurb: document.getElementById('resultBlurb'),
   };
 
   const storage = {
@@ -188,6 +189,23 @@
 
   function pick(list){ return list[Math.floor(Math.random()*list.length)]; }
 
+  // Flavor text generator
+  function flavorBlurb(name){
+    const n = name || '';
+    const is = (re)=> re.test(n);
+    if(is(/라멘|우동|짬뽕|칼국수|수제비|국수|국밥|탕|찌개/)) return '뜨끈한 국물 한 숟갈에 후루룩~ 몸이 사르르 녹는다';
+    if(is(/냉면|냉우동|소바|물냉|냉모밀/)) return '차갑게 퍼지는 청량감! 시원~하게 한 젓가락 쭉';
+    if(is(/마라|불닭|매운|낙지|쭈꾸미|김치|칠리/)) return '얼얼하게 쏴- 매콤함이 입안 가득! 스트레스 싹';
+    if(is(/돈까스|카츠|가츠|튀김|치킨|양념치킨|후라이드|깐풍기|깐쇼/)) return '겉바속촉! 바삭 소리에 고소함이 팡팡 터진다';
+    if(is(/피자|리조또|스테이크|함박|감바스|파스타/)) return '버터향 가득 고소함에 진한 소스가 촉~ 입에 감긴다';
+    if(is(/초밥|사시미|회덮밥|물회/)) return '바다내음 가득, 탱글하고 산뜻한 감칠맛이 스르륵';
+    if(is(/카레|카레라이스|하이라이스/)) return '은은한 향신료에 부드러운 소스가 사르르, 밥이 술술';
+    if(is(/덮밥|규동|가츠동|사케동|텐동|컵밥/)) return '따끈한 밥 위에 풍성한 토핑! 비비는 순간 행복 업';
+    if(is(/김밥|샌드위치|토스트|버거|반미|핫도그/)) return '한 입 가득 와앙! 손에 착 붙는 간편하지만 든든한 맛';
+    if(is(/샐러드|샐러드파스타|분짜|쌀국수/)) return '산뜻하게 아삭! 상큼함과 담백함이 균형 잡힌 한 끼';
+    return '한입에 퍼지는 풍미! 오늘도 든든하게 에너지 충전';
+  }
+
   // Render condition sheet chips
   const COND_TAGS = [
     { id:'quick', label:'간편' },
@@ -234,11 +252,13 @@
     // simple flip + fast roll feel
     if(els.resultSection){ els.resultSection.classList.add('is-spinning'); }
     els.result?.classList.remove('flip-start'); void els.result?.offsetWidth; els.result?.classList.add('flip-start');
+    if(els.resultBlurb) els.resultBlurb.textContent = '';
     const tempTimer = setInterval(()=>{ const t = pick(pool); if(t) els.result.textContent = t.name; }, 70);
     setTimeout(()=>{
       clearInterval(tempTimer);
       const final = pick(pool);
       state.lastPick=final.name; saveState(); els.result.textContent = final.name;
+      if(els.resultBlurb) els.resultBlurb.textContent = flavorBlurb(final.name);
       if(els.resultSection){ els.resultSection.classList.remove('is-spinning'); }
     }, 900);
   }

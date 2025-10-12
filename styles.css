@@ -65,9 +65,15 @@ body{
 .link-btn{background:transparent;color:var(--primary);padding:6px 8px}
 
 .result-card{display:grid;gap:10px}
-.large-result{min-height:160px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.large-result{border:1px solid rgba(232,90,44,.18);border-radius:18px;background:#fff;box-shadow:0 12px 28px rgba(232,90,44,.10), 0 2px 4px rgba(0,0,0,.04)}
+.large-result{min-height:160px;position:relative;overflow:hidden}
+.large-result{border:1px solid rgba(232,90,44,.18);border-radius:18px;background:#fff;box-shadow:0 12px 28px rgba(232,90,44,.10), 0 2px 4px rgba(0,0,0,.04);padding:12px}
+.result-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .result{font-size:2.2rem;font-weight:800;text-align:center;padding:12px;color:#a32600;letter-spacing:.2px;perspective:800px}
+.result-blurb{flex:1;max-width:45%;text-align:right;color:var(--muted);font-size:.92rem;line-height:1.35}
+@media (max-width:560px){
+  .result-row{flex-direction:column;align-items:center}
+  .result-blurb{max-width:100%;text-align:center}
+}
 
 /* Flip/Roulette animation */
 .flip-start{animation:flip-seq .9s cubic-bezier(.2,.9,.2,1)}
