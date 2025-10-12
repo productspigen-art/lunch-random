@@ -74,6 +74,8 @@
     nearbyInfo: document.getElementById('nearbyInfo'),
     activeCatLabel: document.getElementById('activeCatLabel'),
     activeCatBar: document.getElementById('activeCatBar'),
+    activeTagLabel: document.getElementById('activeTagLabel'),
+    activeTagBar: document.getElementById('activeTagBar'),
   };
 
   const storage = {
@@ -90,6 +92,7 @@
     location: storage.get('lm_location', null),
     nearby: storage.get('lm_nearby_presence', { ready:false, presentCats: [], radius: 1200, ts: 0 }),
     activeCats: new Set(),
+    activeTags: [],
   };
 
   function saveState(){
@@ -142,6 +145,31 @@
     });
     els.activeCatBar.hidden = false;
     if(els.activeCatLabel) els.activeCatLabel.hidden = false;
+  }
+
+  function renderActiveTags(){
+    if(!els.activeTagBar) return;
+    const arr = state.activeTags || [];
+    els.activeTagBar.innerHTML = '';
+    if(arr.length === 0){
+      els.activeTagBar.hidden = true;
+      if(els.activeTagLabel) els.activeTagLabel.hidden = true;
+      return;
+    }
+    const labelMap = { quick:'간편', light:'가벼움', heavy:'든든', spicy:'매운', soup:'국물', cold:'시원함' };
+    arr.forEach(id => {
+      const b = document.createElement('button');
+      b.type='button'; b.className='chip'; b.textContent = labelMap[id] || id;
+      b.setAttribute('aria-selected','true');
+      b.addEventListener('click', ()=>{
+        const i = state.activeTags.indexOf(id);
+        if(i>=0) state.activeTags.splice(i,1);
+        renderActiveTags();
+      });
+      els.activeTagBar.appendChild(b);
+    });
+    els.activeTagBar.hidden = false;
+    if(els.activeTagLabel) els.activeTagLabel.hidden = false;
   }
 
   function matches(it, cond){
@@ -200,7 +228,8 @@
     let items = basePool();
     const useCats = (cond && cond.cats && cond.cats.size>0) ? cond.cats : (state.activeCats.size>0 ? state.activeCats : null);
     if(useCats){ items = items.filter(it=>useCats.has(it.cat)); }
-    let pool = items.filter(it=>matches(it, cond?.tags||[]));
+    const useTags = (cond && cond.tags && cond.tags.length>0) ? cond.tags : (state.activeTags || []);
+    let pool = items.filter(it=>matches(it, useTags));
     if(!pool.length) pool = basePool();
     // simple flip + fast roll feel
     if(els.resultSection){ els.resultSection.classList.add('is-spinning'); }
@@ -232,11 +261,11 @@
 
   // Events
   if(els.spinQuickBtn) els.spinQuickBtn.addEventListener('click', ()=> spinOnce({tags:[],cats:new Set()}));
-  function openSheet(){ if(els.conditionSheet){ tempCond.tags=[]; tempCond.cats=new Set(state.activeCats); renderCondSheet(); els.conditionSheet.hidden=false; } }
+  function openSheet(){ if(els.conditionSheet){ tempCond.tags=[...(state.activeTags||[])]; tempCond.cats=new Set(state.activeCats); renderCondSheet(); els.conditionSheet.hidden=false; } }
   function closeSheet(){ if(els.conditionSheet){ els.conditionSheet.hidden=true; } }
   if(els.spinWithCondBtn) els.spinWithCondBtn.addEventListener('click', openSheet);
   if(els.closeSheetBtn) els.closeSheetBtn.addEventListener('click', closeSheet);
-  if(els.applyCondBtn) els.applyCondBtn.addEventListener('click', ()=>{ state.activeCats = new Set(tempCond.cats); renderActiveCats(); closeSheet(); spinOnce({ tags:[...tempCond.tags], cats:new Set(tempCond.cats) }); });
+  if(els.applyCondBtn) els.applyCondBtn.addEventListener('click', ()=>{ state.activeCats = new Set(tempCond.cats); state.activeTags = [...tempCond.tags]; renderActiveCats(); renderActiveTags(); closeSheet(); spinOnce({ tags:[...tempCond.tags], cats:new Set(tempCond.cats) }); });
   if(els.selectAllCatsBtn) els.selectAllCatsBtn.addEventListener('click', ()=>{ tempCond.cats = new Set(state.categories.filter(c=>c.id!=='dessert').map(c=>c.id)); renderCondSheet(); });
   if(els.clearCatsBtn) els.clearCatsBtn.addEventListener('click', ()=>{ tempCond.cats = new Set(); renderCondSheet(); });
 
@@ -246,6 +275,7 @@
   state.selectedCats = new Set(state.categories.map(c=>c.id)); saveState();
   renderSeasonal();
   renderActiveCats();
+  renderActiveTags();
   setNearbyInfo();
   initWeather();
 })();
