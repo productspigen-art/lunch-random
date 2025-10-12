@@ -71,9 +71,9 @@ body{
 .result{font-size:2.2rem;font-weight:800;text-align:center;padding:12px;color:#a32600;letter-spacing:.2px;perspective:800px}
 .result-blurb{display:none}
 /* Flavor card text */
-.flavor-text{font-size:.95rem;line-height:1.5}
-.flavor-text .blurb-title{display:block;color:#a33b1e;font-weight:700;margin:2px 0 6px;font-size:.9rem}
-.flavor-text p{margin:6px 0}
+.flavor-text{font-size:1rem;line-height:1.65;word-break:keep-all;overflow-wrap:break-word;letter-spacing:.1px}
+.flavor-text .blurb-title{display:block;color:#a33b1e;font-weight:800;margin:2px 0 8px;font-size:.95rem}
+.flavor-text p{margin:6px 0 8px}
 @media (max-width:560px){
   .result-row{flex-direction:column;align-items:center}
   .result-blurb{max-width:100%;text-align:center}
