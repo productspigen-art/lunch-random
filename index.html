@@ -52,7 +52,16 @@
             <h2>조건 선택</h2>
             <button id="closeSheetBtn" class="link-btn" type="button">닫기</button>
           </div>
-          <div class="chips" id="condChips"></div>
+          <div class="chips-group" style="margin-top:6px">
+            <div class="group-label">카테고리</div>
+            <div class="chips" id="condCatChips" role="listbox" aria-label="카테고리"></div>
+            <div class="sheet-mini-actions">
+              <button id="selectAllCatsBtn" class="link-btn" type="button">전체 선택</button>
+              <button id="clearCatsBtn" class="link-btn" type="button">전체 해제</button>
+            </div>
+            <div class="group-label" style="margin-top:6px">상황</div>
+            <div class="chips" id="condTagChips" role="listbox" aria-label="상황"></div>
+          </div>
           <div class="sheet-actions">
             <button id="applyCondBtn" class="primary-btn" type="button">이 조건으로 돌리기</button>
           </div>

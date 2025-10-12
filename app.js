@@ -62,9 +62,12 @@
     result: document.getElementById('result'),
     resultSection: document.getElementById('resultSection'),
     conditionSheet: document.getElementById('conditionSheet'),
-    condChips: document.getElementById('condChips'),
+    condCatChips: document.getElementById('condCatChips'),
+    condTagChips: document.getElementById('condTagChips'),
     closeSheetBtn: document.getElementById('closeSheetBtn'),
     applyCondBtn: document.getElementById('applyCondBtn'),
+    selectAllCatsBtn: document.getElementById('selectAllCatsBtn'),
+    clearCatsBtn: document.getElementById('clearCatsBtn'),
     seasonalList: document.getElementById('seasonalList'),
     seasonalTitle: document.getElementById('seasonal-title'),
     weatherInfo: document.getElementById('weatherInfo'),
@@ -133,8 +136,46 @@
 
   function pick(list){ return list[Math.floor(Math.random()*list.length)]; }
 
+  // Render condition sheet chips
+  const COND_TAGS = [
+    { id:'quick', label:'간편' },
+    { id:'light', label:'가벼움' },
+    { id:'heavy', label:'든든' },
+    { id:'spicy', label:'매운' },
+    { id:'soup',  label:'국물' },
+    { id:'cold',  label:'시원함' },
+  ];
+  const tempCond = { tags: [], cats: new Set() };
+  function renderCondSheet(){
+    // categories (multi)
+    if(els.condCatChips){
+      els.condCatChips.innerHTML = '';
+      state.categories.filter(c=>c.id!=='dessert').forEach(cat => {
+        const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=cat.name;
+        const sel = tempCond.cats.has(cat.id);
+        b.setAttribute('aria-selected', String(sel));
+        b.addEventListener('click', ()=>{ if(tempCond.cats.has(cat.id)) tempCond.cats.delete(cat.id); else tempCond.cats.add(cat.id); renderCondSheet(); });
+        els.condCatChips.appendChild(b);
+      });
+    }
+    // tags (multi)
+    if(els.condTagChips){
+      els.condTagChips.innerHTML='';
+      COND_TAGS.forEach(opt=>{
+        const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=opt.label;
+        const sel = tempCond.tags.includes(opt.id);
+        b.setAttribute('aria-selected', String(sel));
+        b.addEventListener('click', ()=>{ const i=tempCond.tags.indexOf(opt.id); if(i>=0) tempCond.tags.splice(i,1); else tempCond.tags.push(opt.id); renderCondSheet(); });
+        els.condTagChips.appendChild(b);
+      });
+    }
+  }
+
   function spinOnce(cond){
-    let pool = basePool().filter(it=>matches(it, cond));
+    // apply category filter if chosen
+    let items = basePool();
+    if(cond && cond.cats && cond.cats.size>0){ items = items.filter(it=>cond.cats.has(it.cat)); }
+    let pool = items.filter(it=>matches(it, cond?.tags||[]));
     if(!pool.length) pool = basePool();
     // simple flip + fast roll feel
     if(els.resultSection){ els.resultSection.classList.add('is-spinning'); }
@@ -165,12 +206,14 @@
   async function initWeather(){ try{ if(!navigator.geolocation) return; const pos=await new Promise((res,rej)=>{ navigator.geolocation.getCurrentPosition(res,rej,{enableHighAccuracy:true,timeout:8000}); }); const {latitude:lat,longitude:lng}=pos.coords; state.location={lat,lng,ts:Date.now()}; saveState(); initNearbyPresence(lat,lng).catch(()=>{}); const url=new URL('https://api.open-meteo.com/v1/forecast'); url.searchParams.set('latitude',lat); url.searchParams.set('longitude',lng); url.searchParams.set('current_weather','true'); url.searchParams.set('timezone','auto'); const r=await fetch(url.toString()); if(!r.ok) throw 0; const data=await r.json(); let code=null,temp=null; if(data.current_weather){ code=data.current_weather.weathercode; temp=data.current_weather.temperature; } const info=mapWeather(code,temp); state.weather={ready:true,summary:info.text,code,temp}; if(els.weatherInfo) els.weatherInfo.textContent=`현재 날씨: ${info.emoji} ${info.text}`; }catch{ if(els.weatherInfo) els.weatherInfo.textContent=''; } }
 
   // Events
-  if(els.spinQuickBtn) els.spinQuickBtn.addEventListener('click', ()=> spinOnce([]));
-  function openSheet(){ if(els.conditionSheet){ renderCondChips(); els.conditionSheet.hidden=false; } }
+  if(els.spinQuickBtn) els.spinQuickBtn.addEventListener('click', ()=> spinOnce({tags:[],cats:new Set()}));
+  function openSheet(){ if(els.conditionSheet){ tempCond.tags=[]; tempCond.cats=new Set(); renderCondSheet(); els.conditionSheet.hidden=false; } }
   function closeSheet(){ if(els.conditionSheet){ els.conditionSheet.hidden=true; } }
   if(els.spinWithCondBtn) els.spinWithCondBtn.addEventListener('click', openSheet);
   if(els.closeSheetBtn) els.closeSheetBtn.addEventListener('click', closeSheet);
-  if(els.applyCondBtn) els.applyCondBtn.addEventListener('click', ()=>{ const sel=[...els.condChips.querySelectorAll('.chip[aria-selected="true"]')].map(b=>{const t=b.textContent; const map={'간편':'quick','가벼움':'light','든든':'heavy','매운':'spicy','국물':'soup','시원함':'cold'}; return map[t]||''}).filter(Boolean); closeSheet(); spinOnce(sel); });
+  if(els.applyCondBtn) els.applyCondBtn.addEventListener('click', ()=>{ closeSheet(); spinOnce({ tags:[...tempCond.tags], cats:new Set(tempCond.cats) }); });
+  if(els.selectAllCatsBtn) els.selectAllCatsBtn.addEventListener('click', ()=>{ tempCond.cats = new Set(state.categories.filter(c=>c.id!=='dessert').map(c=>c.id)); renderCondSheet(); });
+  if(els.clearCatsBtn) els.clearCatsBtn.addEventListener('click', ()=>{ tempCond.cats = new Set(); renderCondSheet(); });
 
   // Init
   migrate();

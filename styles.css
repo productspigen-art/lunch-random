@@ -172,3 +172,4 @@ body{
 .sheet .sheet-content{width:min(720px, 96%);margin:0 0 10px}
 .sheet[hidden]{display:none}
 .sheet-actions{display:flex;justify-content:flex-end;margin-top:10px}
+.sheet-mini-actions{display:flex;gap:8px;justify-content:flex-end;margin:6px 0 4px}
