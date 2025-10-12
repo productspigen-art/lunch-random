@@ -72,6 +72,7 @@
     seasonalTitle: document.getElementById('seasonal-title'),
     weatherInfo: document.getElementById('weatherInfo'),
     nearbyInfo: document.getElementById('nearbyInfo'),
+    activeCatLabel: document.getElementById('activeCatLabel'),
     activeCatBar: document.getElementById('activeCatBar'),
   };
 
@@ -126,7 +127,11 @@
     if(!els.activeCatBar) return;
     const ids = Array.from(state.activeCats);
     els.activeCatBar.innerHTML = '';
-    if(ids.length === 0){ els.activeCatBar.hidden = true; return; }
+    if(ids.length === 0){
+      els.activeCatBar.hidden = true;
+      if(els.activeCatLabel) els.activeCatLabel.hidden = true;
+      return;
+    }
     const label = new Map(state.categories.map(c=>[c.id,c.name]));
     ids.forEach(id=>{
       const b=document.createElement('button');
@@ -136,6 +141,7 @@
       els.activeCatBar.appendChild(b);
     });
     els.activeCatBar.hidden = false;
+    if(els.activeCatLabel) els.activeCatLabel.hidden = false;
   }
 
   function matches(it, cond){

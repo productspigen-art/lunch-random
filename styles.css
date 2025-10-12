@@ -91,9 +91,19 @@ body{
 @keyframes shimmer{0%{transform:translateX(-60%) skewX(-10deg)}100%{transform:translateX(60%) skewX(-10deg)}}
 
 /* Active category chips bar */
-.active-cats{margin:6px 2px 0; gap:6px}
-.active-cats .chip{background:#ffe8dc;border-color:#f3d7c7;font-size:.9rem;padding:6px 10px}
-.active-cats .chip::after{content:' ×';opacity:.7}
+.active-cats-label{margin:8px 2px 2px;color:#a33b1e;font-weight:700;letter-spacing:.3px}
+.active-cats{margin:4px 2px 0; gap:8px}
+.active-cats .chip{
+  background:#ffd4c6;
+  border-color:#ff9f7a;
+  color:#7a2b12;
+  font-weight:700;
+  font-size:.95rem;
+  padding:8px 12px;
+  box-shadow:0 4px 10px rgba(255,107,61,.18);
+}
+.active-cats .chip:hover{filter:brightness(.97)}
+.active-cats .chip::after{content:' ✕';opacity:.75}
 .result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 
 .add-form{display:grid;grid-template-columns:1fr minmax(120px, 1fr) auto;gap:8px}
