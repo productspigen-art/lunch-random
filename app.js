@@ -77,6 +77,7 @@
     activeTagLabel: document.getElementById('activeTagLabel'),
     activeTagBar: document.getElementById('activeTagBar'),
     resultBlurb: document.getElementById('resultBlurb'),
+    flavorText: document.getElementById('flavorText'),
   };
 
   const storage = {
@@ -253,12 +254,14 @@
     if(els.resultSection){ els.resultSection.classList.add('is-spinning'); }
     els.result?.classList.remove('flip-start'); void els.result?.offsetWidth; els.result?.classList.add('flip-start');
     if(els.resultBlurb) els.resultBlurb.textContent = '';
+    if(els.flavorText) els.flavorText.innerHTML = '';
     const tempTimer = setInterval(()=>{ const t = pick(pool); if(t) els.result.textContent = t.name; }, 70);
     setTimeout(()=>{
       clearInterval(tempTimer);
       const final = pick(pool);
       state.lastPick=final.name; saveState(); els.result.textContent = final.name;
-      if(els.resultBlurb) els.resultBlurb.textContent = flavorBlurb(final.name);
+      if(els.flavorText) els.flavorText.innerHTML = `<p>${flavorBlurb(final.name)}</p>`;
+      else if(els.resultBlurb) els.resultBlurb.textContent = flavorBlurb(final.name);
       if(els.resultSection){ els.resultSection.classList.remove('is-spinning'); }
     }, 900);
   }
