@@ -89,6 +89,11 @@ body{
   animation:shimmer 1.2s linear infinite;
 }
 @keyframes shimmer{0%{transform:translateX(-60%) skewX(-10deg)}100%{transform:translateX(60%) skewX(-10deg)}}
+
+/* Active category chips bar */
+.active-cats{margin:6px 2px 0; gap:6px}
+.active-cats .chip{background:#ffe8dc;border-color:#f3d7c7;font-size:.9rem;padding:6px 10px}
+.active-cats .chip::after{content:' ×';opacity:.7}
 .result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 
 .add-form{display:grid;grid-template-columns:1fr minmax(120px, 1fr) auto;gap:8px}

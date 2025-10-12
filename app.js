@@ -72,6 +72,7 @@
     seasonalTitle: document.getElementById('seasonal-title'),
     weatherInfo: document.getElementById('weatherInfo'),
     nearbyInfo: document.getElementById('nearbyInfo'),
+    activeCatBar: document.getElementById('activeCatBar'),
   };
 
   const storage = {
@@ -86,7 +87,8 @@
     lastPick: null,
     weather: { ready:false, summary:null, code:null, temp:null },
     location: storage.get('lm_location', null),
-    nearby: storage.get('lm_nearby_presence', { ready:false, presentCats: [], radius: 1200, ts: 0 })
+    nearby: storage.get('lm_nearby_presence', { ready:false, presentCats: [], radius: 1200, ts: 0 }),
+    activeCats: new Set(),
   };
 
   function saveState(){
@@ -118,6 +120,22 @@
     const allSel = state.selectedCats.size===state.categories.length;
     if(state.selectedCats.size>0 && !allSel){ pool = pool.filter(it=>state.selectedCats.has(it.cat)); }
     return pool;
+  }
+
+  function renderActiveCats(){
+    if(!els.activeCatBar) return;
+    const ids = Array.from(state.activeCats);
+    els.activeCatBar.innerHTML = '';
+    if(ids.length === 0){ els.activeCatBar.hidden = true; return; }
+    const label = new Map(state.categories.map(c=>[c.id,c.name]));
+    ids.forEach(id=>{
+      const b=document.createElement('button');
+      b.type='button'; b.className='chip'; b.textContent=label.get(id)||id;
+      b.setAttribute('aria-selected','true');
+      b.addEventListener('click', ()=>{ state.activeCats.delete(id); renderActiveCats(); });
+      els.activeCatBar.appendChild(b);
+    });
+    els.activeCatBar.hidden = false;
   }
 
   function matches(it, cond){
@@ -172,9 +190,10 @@
   }
 
   function spinOnce(cond){
-    // apply category filter if chosen
+    // apply category filter if chosen or active
     let items = basePool();
-    if(cond && cond.cats && cond.cats.size>0){ items = items.filter(it=>cond.cats.has(it.cat)); }
+    const useCats = (cond && cond.cats && cond.cats.size>0) ? cond.cats : (state.activeCats.size>0 ? state.activeCats : null);
+    if(useCats){ items = items.filter(it=>useCats.has(it.cat)); }
     let pool = items.filter(it=>matches(it, cond?.tags||[]));
     if(!pool.length) pool = basePool();
     // simple flip + fast roll feel
@@ -207,11 +226,11 @@
 
   // Events
   if(els.spinQuickBtn) els.spinQuickBtn.addEventListener('click', ()=> spinOnce({tags:[],cats:new Set()}));
-  function openSheet(){ if(els.conditionSheet){ tempCond.tags=[]; tempCond.cats=new Set(); renderCondSheet(); els.conditionSheet.hidden=false; } }
+  function openSheet(){ if(els.conditionSheet){ tempCond.tags=[]; tempCond.cats=new Set(state.activeCats); renderCondSheet(); els.conditionSheet.hidden=false; } }
   function closeSheet(){ if(els.conditionSheet){ els.conditionSheet.hidden=true; } }
   if(els.spinWithCondBtn) els.spinWithCondBtn.addEventListener('click', openSheet);
   if(els.closeSheetBtn) els.closeSheetBtn.addEventListener('click', closeSheet);
-  if(els.applyCondBtn) els.applyCondBtn.addEventListener('click', ()=>{ closeSheet(); spinOnce({ tags:[...tempCond.tags], cats:new Set(tempCond.cats) }); });
+  if(els.applyCondBtn) els.applyCondBtn.addEventListener('click', ()=>{ state.activeCats = new Set(tempCond.cats); renderActiveCats(); closeSheet(); spinOnce({ tags:[...tempCond.tags], cats:new Set(tempCond.cats) }); });
   if(els.selectAllCatsBtn) els.selectAllCatsBtn.addEventListener('click', ()=>{ tempCond.cats = new Set(state.categories.filter(c=>c.id!=='dessert').map(c=>c.id)); renderCondSheet(); });
   if(els.clearCatsBtn) els.clearCatsBtn.addEventListener('click', ()=>{ tempCond.cats = new Set(); renderCondSheet(); });
 
@@ -220,6 +239,7 @@
   // 항상 초기화된 상태로 시작
   state.selectedCats = new Set(state.categories.map(c=>c.id)); saveState();
   renderSeasonal();
+  renderActiveCats();
   setNearbyInfo();
   initWeather();
 })();
