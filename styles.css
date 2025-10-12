@@ -66,15 +66,16 @@ body{
 
 .result-card{display:grid;gap:10px}
 .large-result{min-height:160px;position:relative;overflow:hidden}
-.large-result{border:1px solid rgba(232,90,44,.18);border-radius:18px;background:#fff;box-shadow:0 12px 28px rgba(232,90,44,.10), 0 2px 4px rgba(0,0,0,.04);padding:12px}
-.result-row{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:12px}
-.result{font-size:2.2rem;font-weight:800;text-align:left;padding:12px;color:#a32600;letter-spacing:.2px;perspective:800px}
-.result-blurb{flex:1;max-width:100%;text-align:right;color:var(--muted);font-size:.95rem;line-height:1.45}
-.result-blurb .blurb-title{display:block;color:#a33b1e;font-weight:700;margin:2px 0 6px;font-size:.9rem}
-.result-blurb p{margin:4px 0}
+.large-result{border:1px solid rgba(232,90,44,.18);border-radius:18px;background:#fff;box-shadow:0 12px 28px rgba(232,90,44,.10), 0 2px 4px rgba(0,0,0,.04);padding:12px;display:flex;align-items:center;justify-content:center}
+.result-row{display:contents}
+.result{font-size:2.2rem;font-weight:800;text-align:center;padding:12px;color:#a32600;letter-spacing:.2px;perspective:800px}
+.result-blurb{display:none}
+/* Flavor card text */
+.flavor-text{font-size:.95rem;line-height:1.5}
+.flavor-text .blurb-title{display:block;color:#a33b1e;font-weight:700;margin:2px 0 6px;font-size:.9rem}
+.flavor-text p{margin:6px 0}
 @media (max-width:560px){
-  .result-row{grid-template-columns:1fr;}
-  .result{ text-align:center }
+  .result-row{flex-direction:column;align-items:center}
   .result-blurb{max-width:100%;text-align:center}
 }
 
