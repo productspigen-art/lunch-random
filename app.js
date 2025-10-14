@@ -1,4 +1,4 @@
-(() => {
+﻿(() => {
   const SCHEMA_VERSION = 7;
 
   const DEFAULT_CATEGORIES = [
@@ -79,6 +79,7 @@
     resultBlurb: document.getElementById('resultBlurb'),
     flavorText: document.getElementById('flavorText'),
     shareBtn: document.getElementById('shareBtn'),
+    allMenuList: document.getElementById('allMenuList'),
   };
 
   const storage = {
@@ -360,7 +361,32 @@
     list.forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
     if(els.seasonalTitle) els.seasonalTitle.textContent = `${m}월 제철음식`;
   }
-
+  // Render all menu items in bottom list
+  function renderAllMenu(){
+    if(!els.allMenuList) return;
+    const listEl = els.allMenuList;
+    listEl.innerHTML = '';
+    const label = new Map(state.categories.map(c=>[c.id,c.name]));
+    const items = (state.items || []).slice().sort((a,b)=>{
+      const ac = (label.get(a.cat)||a.cat||'');
+      const bc = (label.get(b.cat)||b.cat||'');
+      if(ac !== bc) return ac.localeCompare(bc);
+      return (a.name||'').localeCompare(b.name||'');
+    });
+    items.forEach(it=>{
+      const row = document.createElement('div');
+      row.className = 'item';
+      const name = document.createElement('div');
+      name.textContent = it.name;
+      const cat = document.createElement('div');
+      cat.className = 'muted small';
+      cat.style.marginLeft = '6px';
+      cat.textContent = label.get(it.cat) || it.cat;
+      row.appendChild(name);
+      row.appendChild(cat);
+      listEl.appendChild(row);
+    });
+  }
   // Nearby + Weather (for display only)
   function setNearbyInfo(){ if(!els.nearbyInfo) return; if(state.nearby&&state.nearby.ready&&state.nearby.presentCats.length){ const label=new Map(state.categories.map(c=>[c.id,c.name])); const labs=state.nearby.presentCats.map(id=>label.get(id)||id).slice(0,6); els.nearbyInfo.textContent=`근처 감지: ${labs.join(' · ')}`; } else els.nearbyInfo.textContent=''; }
   function mapWeather(code,temp){ let cond='알 수 없음', emoji='🌤️'; const c=Number(code); if(c===0){cond='맑음';emoji='☀️';} else if([1,2,3].includes(c)){cond='구름 조금';emoji='⛅';} else if([45,48].includes(c)){cond='안개';emoji='🌫️';} else if([51,53,55,56,57].includes(c)){cond='이슬비';emoji='🌦️';} else if([61,63,65,66,67,80,81,82].includes(c)){cond='비';emoji='🌧️';} else if([71,73,75,77,85,86].includes(c)){cond='눈';emoji='❄️';} else if([95,96,97].includes(c)){cond='뇌우';emoji='⛈️';} const t=(temp!=null&&Number.isFinite(temp))?`${Math.round(temp)}°C`:''; return { text: t?`${cond} · ${t}`:cond, emoji } }
@@ -469,7 +495,9 @@
   renderSeasonal();
   renderActiveCats();
   renderActiveTags();
+  renderAllMenu();
   setNearbyInfo();
   tryInitKakao();
   initWeather();
 })();
+
