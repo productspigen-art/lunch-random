@@ -79,6 +79,8 @@
     resultBlurb: document.getElementById('resultBlurb'),
     flavorText: document.getElementById('flavorText'),
     shareBtn: document.getElementById('shareBtn'),
+    kakaoShareBtn: document.getElementById('kakaoShareBtn'),
+    copyShareBtn: document.getElementById('copyShareBtn'),
   };
 
   const storage = {
@@ -368,6 +370,24 @@
   async function initNearbyPresence(lat,lng,radius=1200){ try{ const base="[out:json][timeout:12];"+"(node[\"amenity\"~\"restaurant|fast_food|cafe\"](around:"+radius+","+lat+","+lng+");"+"way[\"amenity\"~\"restaurant|fast_food|cafe\"](around:"+radius+","+lat+","+lng+");"+"relation[\"amenity\"~\"restaurant|fast_food|cafe\"](around:"+radius+","+lat+","+lng+"););"+"out tags center;"; const urls=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter']; let ok=false,data=null; for(const u of urls){ try{ const r=await fetch(u+'?data='+encodeURIComponent(base)); if(r.ok){ data=await r.json(); ok=true; break;} }catch{} } if(!ok) throw 0; const cuisines=new Set(); if(Array.isArray(data.elements)){ for(const el of data.elements){ const t=el.tags||{}; const c=(t.cuisine||'').toLowerCase(); if(!c) continue; c.split(';').map(s=>s.trim()).filter(Boolean).forEach(v=>cuisines.add(v)); } } const map=catCuisineMap(); const presentCats=Object.keys(map).filter(cat=>map[cat].some(tag=>cuisines.has(tag))); state.nearby={ready:true,presentCats,radius,ts:Date.now(),lat,lng}; saveState(); setNearbyInfo(); }catch{ state.nearby={ready:false,presentCats:[],radius,ts:Date.now(),lat,lng}; saveState(); setNearbyInfo(); } }
   async function initWeather(){ try{ if(!navigator.geolocation) return; const pos=await new Promise((res,rej)=>{ navigator.geolocation.getCurrentPosition(res,rej,{enableHighAccuracy:true,timeout:8000}); }); const {latitude:lat,longitude:lng}=pos.coords; state.location={lat,lng,ts:Date.now()}; saveState(); initNearbyPresence(lat,lng).catch(()=>{}); const url=new URL('https://api.open-meteo.com/v1/forecast'); url.searchParams.set('latitude',lat); url.searchParams.set('longitude',lng); url.searchParams.set('current_weather','true'); url.searchParams.set('timezone','auto'); const r=await fetch(url.toString()); if(!r.ok) throw 0; const data=await r.json(); let code=null,temp=null; if(data.current_weather){ code=data.current_weather.weathercode; temp=data.current_weather.temperature; } const info=mapWeather(code,temp); state.weather={ready:true,summary:info.text,code,temp}; if(els.weatherInfo) els.weatherInfo.textContent=`현재 날씨: ${info.emoji} ${info.text}`; }catch{ if(els.weatherInfo) els.weatherInfo.textContent=''; } }
 
+  // Share helpers
+  function tryInitKakao(){
+    try{
+      if(typeof window !== 'undefined' && window.Kakao){
+        const meta = document.querySelector('meta[name="kakao-app-key"]');
+        const key = (meta && (meta.content||'').trim()) || localStorage.getItem('lm_kakao_app_key') || '';
+        if(!window.Kakao.isInitialized() && key){ window.Kakao.init(key); }
+      }
+    }catch{}
+  }
+  function getSharePayload(){
+    const name = (state.lastPick || '').trim() || (els.result && (els.result.textContent||'').trim()) || '';
+    const url = (typeof location !== 'undefined' && location.href) ? location.href : '';
+    const text = name ? `오늘 점심 추천: ${name}` : '룰렛을 돌려 오늘의 점심을 골라보세요!';
+    const title = '점심 추천';
+    return { name, text, url, title };
+  }
+
   // Events
   if(els.spinQuickBtn) els.spinQuickBtn.addEventListener('click', ()=> spinOnce({tags:[],cats:new Set()}));
   function openSheet(){ if(els.conditionSheet){ tempCond.tags=[...(state.activeTags||[])]; tempCond.cats=new Set(state.activeCats); renderCondSheet(); els.conditionSheet.hidden=false; } }
@@ -392,6 +412,45 @@
     });
   }
 
+  if(els.kakaoShareBtn){
+    els.kakaoShareBtn.addEventListener('click', async ()=>{
+      tryInitKakao();
+      const p = getSharePayload();
+      try{
+        if(window.Kakao && window.Kakao.isInitialized && window.Kakao.isInitialized()){
+          window.Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: { title: p.title, description: p.text, imageUrl: p.url, link: { mobileWebUrl: p.url, webUrl: p.url } }
+          });
+        }else{
+          alert('카카오톡 공유를 사용하려면 Kakao 앱 키 설정이 필요합니다. meta[kakao-app-key] 또는 localStorage "lm_kakao_app_key"에 키를 설정해 주세요.');
+        }
+      }catch{
+        alert('카카오톡 공유 중 문제가 발생했어요. 링크 복사로 공유해 주세요.');
+      }
+    });
+  }
+
+  if(els.copyShareBtn){
+    els.copyShareBtn.addEventListener('click', async ()=>{
+      const p = getSharePayload();
+      const payload = [p.text, p.url].filter(Boolean).join('\n');
+      try{
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          await navigator.clipboard.writeText(payload);
+          els.copyShareBtn.textContent = '복사됨!';
+          setTimeout(()=>{ els.copyShareBtn.textContent='링크 복사'; }, 1200);
+        }else{
+          const t=document.createElement('textarea'); t.value=payload; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
+          els.copyShareBtn.textContent = '복사됨!';
+          setTimeout(()=>{ els.copyShareBtn.textContent='링크 복사'; }, 1200);
+        }
+      }catch{
+        alert('복사에 실패했어요. 수동으로 복사해 주세요.');
+      }
+    });
+  }
+
   // Init
   migrate();
   // 항상 초기화된 상태로 시작
@@ -400,5 +459,6 @@
   renderActiveCats();
   renderActiveTags();
   setNearbyInfo();
+  tryInitKakao();
   initWeather();
 })();
