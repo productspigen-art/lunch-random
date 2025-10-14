@@ -1,9 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>점심메뉴 랜덤추천</title>
+    <title>?먯떖硫붾돱 ?쒕뜡異붿쿇</title>
     <meta name="theme-color" content="#ffffff" />
     <meta name="google-adsense-account" content="ca-pub-2173296428991687" />
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2173296428991687"
@@ -16,7 +16,7 @@
   </head>
   <body>
     <header class="app-header">
-      <h1>오늘은 또 뭐먹지? 🤔</h1>
+      <h1>?ㅻ뒛? ??萸먮㉨吏? ?쨺</h1>
       <div id="weatherInfo" class="muted small"></div>
       <div id="nearbyInfo" class="muted small"></div>
     </header>
@@ -27,62 +27,62 @@
       
 
       <section class="cta-row">
-        <button id="spinQuickBtn" class="primary-btn cta" type="button" aria-label="맛의 신께 계시 받기 🙏">맛의 신께 계시 받기 🙏</button>
-        <button id="spinWithCondBtn" class="secondary-btn cta" type="button" aria-label="조건 정하고 돌리기">🎯 조건 정하고 돌리기</button>
+        <button id="spinQuickBtn" class="primary-btn cta" type="button" aria-label="留쏆쓽 ?좉퍡 怨꾩떆 諛쏄린 ?솋">留쏆쓽 ?좉퍡 怨꾩떆 諛쏄린 ?솋</button>
+        <button id="spinWithCondBtn" class="secondary-btn cta" type="button" aria-label="議곌굔 ?뺥븯怨??뚮━湲?>?렞 議곌굔 ?뺥븯怨??뚮━湲?/button>
       </section>
 
-      <!-- 현재 적용된 카테고리 필터 표시 -->
-      <div id="activeCatLabel" class="active-cats-label" hidden>선택한 카테고리</div>
+      <!-- ?꾩옱 ?곸슜??移댄뀒怨좊━ ?꾪꽣 ?쒖떆 -->
+      <div id="activeCatLabel" class="active-cats-label" hidden>?좏깮??移댄뀒怨좊━</div>
       <div id="activeCatBar" class="chips active-cats" aria-live="polite" hidden></div>
 
-      <!-- 현재 적용된 상황(태그) 표시 -->
-      <div id="activeTagLabel" class="active-cats-label" hidden>선택한 상황</div>
+      <!-- ?꾩옱 ?곸슜???곹솴(?쒓렇) ?쒖떆 -->
+      <div id="activeTagLabel" class="active-cats-label" hidden>?좏깮???곹솴</div>
       <div id="activeTagBar" class="chips active-cats" aria-live="polite" hidden></div>
 
       <section aria-labelledby="result-title" class="card result-card large-result" id="resultSection">
-        <h2 id="result-title" class="sr-only">추천 결과</h2>
-        <div id="result" class="result">메뉴 룰렛 준비!</div>
+        <h2 id="result-title" class="sr-only">異붿쿇 寃곌낵</h2>
+        <div id="result" class="result">硫붾돱 猷곕젢 以鍮?</div>
       </section>
 
       <div class="info-row">
         <section aria-labelledby="seasonal-title" class="card info-card">
           <div class="card-header">
-            <h2 id="seasonal-title">요즘 제철 음식</h2>
+            <h2 id="seasonal-title">?붿쬁 ?쒖쿋 ?뚯떇</h2>
           </div>
           <div id="seasonalList" class="chips" aria-live="polite"></div>
         </section>
 
         <section aria-labelledby="share-title" class="card info-card share-card">
           <div class="card-header">
-            <h2 id="share-title">친구에게 공유하기</h2>
+            <h2 id="share-title">移쒓뎄?먭쾶 怨듭쑀?섍린</h2>
           </div>
           <div class="share-box">
             <div class="sheet-actions" style="gap:8px">
-              <button id="shareBtn" class="primary-btn" type="button">공유하기</button>
+              <button id="shareBtn" class="primary-btn" type="button">蹂듭궗?섍린</button>
             </div>
           </div>
         </section>
       </div>
 
-      <!-- 조건 선택 시트 -->
+      <!-- 議곌굔 ?좏깮 ?쒗듃 -->
       <section id="conditionSheet" class="sheet" hidden>
         <div class="sheet-content card">
           <div class="card-header">
-            <h2>조건 선택</h2>
-            <button id="closeSheetBtn" class="link-btn" type="button">닫기</button>
+            <h2>議곌굔 ?좏깮</h2>
+            <button id="closeSheetBtn" class="link-btn" type="button">?リ린</button>
           </div>
           <div class="chips-group" style="margin-top:6px">
-            <div class="group-label">카테고리</div>
-            <div class="chips" id="condCatChips" role="listbox" aria-label="카테고리"></div>
+            <div class="group-label">移댄뀒怨좊━</div>
+            <div class="chips" id="condCatChips" role="listbox" aria-label="移댄뀒怨좊━"></div>
             <div class="sheet-mini-actions">
-              <button id="selectAllCatsBtn" class="link-btn" type="button">전체 선택</button>
-              <button id="clearCatsBtn" class="link-btn" type="button">전체 해제</button>
+              <button id="selectAllCatsBtn" class="link-btn" type="button">?꾩껜 ?좏깮</button>
+              <button id="clearCatsBtn" class="link-btn" type="button">?꾩껜 ?댁젣</button>
             </div>
-            <div class="group-label" style="margin-top:6px">상황</div>
-            <div class="chips" id="condTagChips" role="listbox" aria-label="상황"></div>
+            <div class="group-label" style="margin-top:6px">?곹솴</div>
+            <div class="chips" id="condTagChips" role="listbox" aria-label="?곹솴"></div>
           </div>
           <div class="sheet-actions">
-            <button id="applyCondBtn" class="primary-btn" type="button">이 조건으로 돌리기</button>
+            <button id="applyCondBtn" class="primary-btn" type="button">??議곌굔?쇰줈 ?뚮━湲?/button>
           </div>
         </div>
       </section>
@@ -90,8 +90,9 @@
       
     </main>
 
-    <footer class="app-footer">만든이: Codex · 로컬에서 가볍게 사용하세요</footer>
+    <footer class="app-footer">留뚮뱺?? Codex 쨌 濡쒖뺄?먯꽌 媛蹂띻쾶 ?ъ슜?섏꽭??/footer>
 
     <script src="app.js?v=2025-01-11-6"></script>
   </body>
   </html>
+
