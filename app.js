@@ -1,5 +1,5 @@
 ﻿(() => {
-  const SCHEMA_VERSION = 7;
+  const SCHEMA_VERSION = 8;
 
   const DEFAULT_CATEGORIES = [
     { id: 'korean', name: '한식' }, { id: 'japanese', name: '일식' }, { id: 'chinese', name: '중식' },
@@ -54,6 +54,70 @@
     {name:'햄버거세트',cat:'fast'},{name:'치킨버거세트',cat:'fast'},{name:'피자세트',cat:'fast'},{name:'치킨세트',cat:'fast'},
     // 도시락/세트
     {name:'도시락',cat:'etc'},{name:'한식도시락',cat:'etc'},{name:'분식세트',cat:'etc'},{name:'돈까스정식',cat:'japanese'},{name:'초밥세트',cat:'japanese'},
+  ];
+
+  // Additional curated items to merge (dedup by name)
+  const EXTRA_ITEMS = [
+    // 도시락/덮밥/밥류
+    {name:'도시락',cat:'rice'},{name:'한식도시락',cat:'rice'},{name:'간장계란밥',cat:'rice'},{name:'규동',cat:'rice'},{name:'김치볶음밥',cat:'rice'},{name:'불고기덮밥',cat:'rice'},{name:'스팸마요덮밥',cat:'rice'},{name:'제육덮밥',cat:'rice'},{name:'참치마요덮밥',cat:'rice'},{name:'카레라이스',cat:'rice'},{name:'컵밥',cat:'rice'},{name:'연어덮밥',cat:'japanese'},{name:'현미도시락',cat:'rice'},
+
+    // 동남아/아시아
+    {name:'나시고렝',cat:'seasia'},{name:'락사',cat:'seasia'},{name:'바쿠테',cat:'seasia'},{name:'사테',cat:'seasia'},{name:'싱가포르치킨라이스',cat:'seasia'},
+    {name:'반미',cat:'vietnamese'},{name:'분짜',cat:'vietnamese'},{name:'쌀국수',cat:'vietnamese'},
+
+    // 분식/간편
+    {name:'김밥',cat:'sandwich'},{name:'돈까스김밥',cat:'sandwich'},{name:'참치김밥',cat:'sandwich'},{name:'토스트',cat:'sandwich'},{name:'베이글샌드위치',cat:'sandwich'},{name:'샌드위치',cat:'sandwich'},{name:'파니니',cat:'sandwich'},{name:'핫도그',cat:'sandwich'},{name:'주먹밥',cat:'rice'},{name:'컵라면',cat:'noodle'},
+    {name:'떡볶이',cat:'noodle'},{name:'순대',cat:'noodle'},{name:'오뎅',cat:'noodle'},{name:'튀김',cat:'noodle'},{name:'라면',cat:'noodle'},{name:'라볶이',cat:'noodle'},{name:'쫄면',cat:'noodle'},
+
+    // 양식/파스타/리조또/스테이크
+    {name:'감바스',cat:'western'},{name:'리조또(버섯)',cat:'western'},{name:'리조또(크림)',cat:'western'},{name:'리조또(토마토)',cat:'western'},
+    {name:'샐러드파스타',cat:'western'},{name:'스테이크',cat:'western'},{name:'치킨스테이크',cat:'western'},{name:'함박스테이크',cat:'western'},
+    {name:'파스타(까르보나라)',cat:'western'},{name:'파스타(로제)',cat:'western'},{name:'파스타(봉골레)',cat:'western'},{name:'파스타(알리오올리오)',cat:'western'},{name:'파스타(토마토)',cat:'western'},
+    {name:'라자냐',cat:'western'},{name:'수프',cat:'western'},{name:'오믈렛',cat:'brunch'},{name:'브런치세트',cat:'brunch'},
+
+    // 일식
+    {name:'가츠동',cat:'japanese'},{name:'규카츠',cat:'japanese'},{name:'냉우동',cat:'japanese'},{name:'우동',cat:'japanese'},
+    {name:'돈까스덮밥',cat:'japanese'},{name:'돈까스정식',cat:'japanese'},{name:'돈카츠',cat:'japanese'},{name:'라멘',cat:'japanese'},
+    {name:'사시미(회)',cat:'japanese'},{name:'사케동',cat:'japanese'},{name:'샤브샤브',cat:'japanese'},{name:'스키야키',cat:'japanese'},
+    {name:'야끼니쿠',cat:'japanese'},{name:'야끼소바',cat:'japanese'},{name:'오므라이스',cat:'japanese'},
+    {name:'초밥',cat:'japanese'},{name:'초밥세트',cat:'japanese'},{name:'텐동',cat:'japanese'},{name:'가라아게',cat:'japanese'},{name:'일본식카레',cat:'japanese'},
+
+    // 중식
+    {name:'고추잡채',cat:'chinese'},{name:'깐쇼새우',cat:'chinese'},{name:'깐풍기',cat:'chinese'},{name:'꿔바로우',cat:'chinese'},
+    {name:'마라샹궈',cat:'chinese'},{name:'마라탕',cat:'chinese'},{name:'마파두부',cat:'chinese'},{name:'새우볶음밥',cat:'chinese'},
+    {name:'유산슬',cat:'chinese'},{name:'잡채밥',cat:'chinese'},{name:'짜장면',cat:'chinese'},{name:'짬뽕',cat:'chinese'},{name:'탕수육',cat:'chinese'},{name:'탄탄면',cat:'chinese'},{name:'로제짬뽕',cat:'chinese'},
+
+    // 태국
+    {name:'똠얌꿍',cat:'thai'},{name:'카오만까이',cat:'thai'},{name:'카오팟',cat:'thai'},{name:'팟타이',cat:'thai'},
+
+    // 치킨/버거/피자(패스트푸드)
+    {name:'간장치킨',cat:'fast'},{name:'반반치킨',cat:'fast'},{name:'양념치킨',cat:'fast'},{name:'후라이드치킨',cat:'fast'},{name:'통닭',cat:'fast'},{name:'핫윙',cat:'fast'},{name:'감자튀김',cat:'fast'},
+    {name:'치킨버거세트',cat:'fast'},{name:'치킨세트',cat:'fast'},{name:'햄버거(불고기버거)',cat:'fast'},{name:'햄버거(새우버거)',cat:'fast'},{name:'햄버거(치킨버거)',cat:'fast'},{name:'햄버거세트',cat:'fast'},
+    {name:'피자(마르게리타)',cat:'fast'},{name:'피자(페퍼로니)',cat:'fast'},{name:'피자세트',cat:'fast'},{name:'불고기피자',cat:'fast'},
+
+    // 한식
+    {name:'갈비구이',cat:'korean'},{name:'갈비찜',cat:'korean'},{name:'갈비탕',cat:'korean'},{name:'감자탕',cat:'korean'},{name:'고추장불고기',cat:'korean'},{name:'곰탕',cat:'korean'},
+    {name:'김치찌개',cat:'korean'},{name:'김치찜',cat:'korean'},{name:'낙지볶음',cat:'korean'},{name:'닭갈비',cat:'korean'},{name:'닭볶음탕',cat:'korean'},{name:'돌솥비빔밥',cat:'korean'},
+    {name:'돼지불백',cat:'korean'},{name:'된장찌개',cat:'korean'},{name:'목살구이',cat:'korean'},{name:'부대찌개',cat:'korean'},{name:'불고기',cat:'korean'},{name:'비빔밥',cat:'korean'},
+    {name:'삼겹살',cat:'korean'},{name:'삼계탕',cat:'korean'},{name:'설렁탕',cat:'korean'},{name:'순두부찌개',cat:'korean'},{name:'아귀찜',cat:'korean'},{name:'오리불고기',cat:'korean'},
+    {name:'오삼불고기',cat:'korean'},{name:'오징어볶음',cat:'korean'},{name:'육개장',cat:'korean'},{name:'제육볶음',cat:'korean'},{name:'찜닭',cat:'korean'},{name:'추어탕',cat:'korean'},
+    {name:'코다리찜',cat:'korean'},{name:'해물찜',cat:'korean'},{name:'해장국',cat:'korean'},{name:'콩나물국밥',cat:'korean'},{name:'순댓국',cat:'korean'},{name:'청국장',cat:'korean'},{name:'북어국',cat:'korean'},
+    {name:'보쌈',cat:'korean'},{name:'족발',cat:'korean'},
+
+    // 면/국수류(한식)
+    {name:'냉면',cat:'noodle'},{name:'비빔냉면',cat:'noodle'},{name:'칼국수',cat:'noodle'},{name:'수제비',cat:'noodle'},{name:'잔치국수',cat:'noodle'},
+
+    // 멕시칸
+    {name:'브리또',cat:'mexican'},{name:'타코',cat:'mexican'},{name:'퀘사디야',cat:'mexican'},
+
+    // 샐러드/가벼운 식사
+    {name:'닭가슴살샐러드',cat:'salad'},{name:'연어샐러드',cat:'salad'},{name:'아보카도샐러드',cat:'salad'},{name:'포케',cat:'salad'},
+
+    // 디저트/브런치류
+    {name:'크로플',cat:'dessert'},{name:'와플',cat:'dessert'},{name:'커피세트',cat:'brunch'},
+
+    // 기타
+    {name:'훠궈',cat:'chinese'},{name:'죽',cat:'etc'}
   ];
 
   const els = {
@@ -112,7 +176,8 @@
     DEFAULT_CATEGORIES.forEach(c=>{ if(!byId.has(c.id)) byId.set(c.id,c); });
     state.categories=Array.from(byId.values());
     const nameSet=new Set(state.items.map(i=>i.name));
-    const toAdd=DEFAULT_ITEMS.filter(i=>!nameSet.has(i.name));
+    const defaults = DEFAULT_ITEMS.concat(EXTRA_ITEMS);
+    const toAdd=defaults.filter(i=>!nameSet.has(i.name));
     if(toAdd.length) state.items=state.items.concat(toAdd);
   }
 
