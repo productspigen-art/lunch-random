@@ -420,12 +420,28 @@
 
   // Seasonal
   function renderSeasonal(){
-    if(!els.seasonalList) return;
-    const M = {1:['굴','과메기','대구','미나리','시금치','감귤'],2:['광어','우럭','굴','달래','냉이','꼬막'],3:['주꾸미','도다리','쑥','달래','딸기'],4:['주꾸미','멍게','참나물','비빔국수','봄동'],5:['쭈꾸미','전어(봄)','매실','주키니','오이'],6:['참치','병어','옥수수','토마토','블루베리'],7:['민어','장어','수박','참외','토마토','옥수수'],8:['전복','갈치','복숭아','포도','가지'],9:['전어(가을)','꽃게','배','사과','무화과','고구마'],10:['대하','전어','낙지','밤','곶감','배추'],11:['방어','굴','무','배추','귤','단감'],12:['방어','꼬막','굴','대구','시금치','감귤']};
-    const now=new Date(), m=now.getMonth()+1, list=M[m]||[]; els.seasonalList.innerHTML='';
-    list.forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
-    if(els.seasonalTitle) els.seasonalTitle.textContent = `${m}월 제철음식`;
-  }
+  if(!els.seasonalList) return;
+  const M = {
+    1:['\uADE4','\uACFC\uBA54\uAE30','\uBBF8\uB098\uB9AC'],
+    2:['\uAD11\uC5EC','\uAF2C\uB9DD','\uB530\uAE30'],
+    3:['\uC8FC\uAFCD\uBBF8','\uB3C4\uB2E4\uB9AC','\uB0AD\uC774'],
+    4:['\uC8FC\uAFCD\uBBF8','\uBA5C\uAC1C','\uCC38\uB098\uBB3C'],
+    5:['\uCBE0\uAFCD\uBBF8','\uB9E4\uC2E4','\uC8FC\uD0A4\uB2C8'],
+    6:['\uCC38\uCE58','\uBCD1\uC5EC','\uBE14\uB8E8\uBCA0\uB9AC'],
+    7:['\uBB38\uC5EC','\uC218\uBC15','\uC625\uC218\uC218'],
+    8:['\uC804\uBCF5','\uAC08\uCE58','\uBCF5\uC1C4\uC544'],
+    9:['\uC804\uC5EC','\uAF43\uAC1C','\uBC30'],
+    10:['\uC804\uC5EC','\uB300\uD558','\uBC30\uCD94'],
+    11:['\uBC29\uC5EC','\uAD74','\uAC10\uADE4'],
+    12:['\uBC29\uC5EC','\uAF2C\uB9DD','\uAC10\uADE4']
+  };
+  const now = new Date();
+  const m = now.getMonth()+1;
+  const list = M[m] || [];
+  els.seasonalList.innerHTML = '';
+  list.forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
+  if(els.seasonalTitle) els.seasonalTitle.textContent = m + '\uC6D4 \uC81C\uCCA0\uC74C\uC2DD';
+}}
   // Render all menu items in bottom list
   function renderAllMenu(){
     if(!els.allMenuList) return;
@@ -559,4 +575,5 @@
   tryInitKakao();
   initWeather();
 })();
+
 
