@@ -10,6 +10,9 @@
             crossorigin="anonymous"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="styles.css?v=2025-01-11-6" />
+    <!-- Optional: Set your Kakao JavaScript app key here to enable KakaoTalk share -->
+    <meta name="kakao-app-key" content="" />
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.6.0/kakao.min.js" crossorigin="anonymous"></script>
   </head>
   <body>
     <header class="app-header">
@@ -49,7 +52,16 @@
           <div id="seasonalList" class="chips" aria-live="polite"></div>
         </section>
 
-        
+        <section aria-labelledby="share-title" class="card info-card share-card">
+          <div class="card-header">
+            <h2 id="share-title">친구에게 공유하기</h2>
+          </div>
+          <div class="share-box">
+            <div class="sheet-actions" style="gap:8px">
+              <button id="shareBtn" class="primary-btn" type="button">공유하기</button>
+            </div>
+          </div>
+        </section>
       </div>
 
       <!-- 조건 선택 시트 -->
