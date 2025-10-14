@@ -1,55 +1,59 @@
-﻿(() => {
+(() => {
   const SCHEMA_VERSION = 7;
 
   const DEFAULT_CATEGORIES = [
-    { id: 'korean', name: '?�식' }, { id: 'japanese', name: '?�식' }, { id: 'chinese', name: '중식' },
-    { id: 'western', name: '?�식' }, { id: 'noodle', name: '�?분식' }, { id: 'rice', name: '�???��' },
-    { id: 'salad', name: '?�러?? }, { id: 'sandwich', name: '?�드?�치' }, { id: 'fast', name: '?�스?�푸?? },
-    { id: 'vietnamese', name: '베트?? }, { id: 'thai', name: '?�국' }, { id: 'indian', name: '?�도/?�팔' },
-    { id: 'mexican', name: '멕시�? }, { id: 'brunch', name: '브런�? }, { id: 'med', name: '지중해' },
-    { id: 'seasia', name: '?�남?? }, { id: 'dessert', name: '?��??? }, { id: 'etc', name: '기�?' }
+    { id: 'korean', name: '한식' }, { id: 'japanese', name: '일식' }, { id: 'chinese', name: '중식' },
+    { id: 'western', name: '양식' }, { id: 'noodle', name: '면/분식' }, { id: 'rice', name: '밥/덮밥' },
+    { id: 'salad', name: '샐러드' }, { id: 'sandwich', name: '샌드위치' }, { id: 'fast', name: '패스트푸드' },
+    { id: 'vietnamese', name: '베트남' }, { id: 'thai', name: '태국' }, { id: 'indian', name: '인도/네팔' },
+    { id: 'mexican', name: '멕시칸' }, { id: 'brunch', name: '브런치' }, { id: 'med', name: '지중해' },
+    { id: 'seasia', name: '동남아' }, { id: 'dessert', name: '디저트' }, { id: 'etc', name: '기타' }
   ];
 
-  // ?��????�사 ?�주 ?�이??(?�료 ?�외)
+  // 풍부한 식사 위주 데이터 (음료 제외)
   const DEFAULT_ITEMS = [
-    // �???찌개
-    {name:'김치찌�?,cat:'korean'},{name:'?�장찌개',cat:'korean'},{name:'?�두부찌개',cat:'korean'},{name:'부?�찌개',cat:'korean'},
-    {name:'감자??,cat:'korean'},{name:'?�장�?,cat:'korean'},{name:'?�개??,cat:'korean'},{name:'?�계??,cat:'korean'},
-    {name:'?�렁??,cat:'korean'},{name:'갈비??,cat:'korean'},{name:'곰탕',cat:'korean'},{name:'추어??,cat:'korean'},
-    // 볶음/�?구이
-    {name:'불고�?,cat:'korean'},{name:'?�육볶음',cat:'korean'},{name:'?��?불백',cat:'korean'},{name:'고추?�불고기',cat:'korean'},
-    {name:'?�삼불고�?,cat:'korean'},{name:'??���?,cat:'korean'},{name:'?��?볶음',cat:'korean'},{name:'?�징?�볶??,cat:'korean'},
-    {name:'??��?�탕',cat:'korean'},{name:'찜닭',cat:'korean'},{name:'갈비�?,cat:'korean'},{name:'?��?�?,cat:'korean'},
-    {name:'코다리찜',cat:'korean'},{name:'김치찜',cat:'korean'},{name:'?�물�?,cat:'korean'},
-    {name:'?�겹??,cat:'korean'},{name:'목살구이',cat:'korean'},{name:'갈비구이',cat:'korean'},{name:'?�리불고�?,cat:'korean'},
-    // 치킨/?�스??    {name:'?�념치킨',cat:'fast'},{name:'간장치킨',cat:'fast'},{name:'?�라?�드치킨',cat:'fast'},{name:'반반치킨',cat:'fast'},
-    {name:'?�닭',cat:'fast'},{name:'치킨?�테?�크',cat:'western'},
-    // 비빔/??��/볶음�?    {name:'비빔�?,cat:'korean'},{name:'?�솥비빔�?,cat:'korean'},{name:'?�육??��',cat:'rice'},{name:'불고기덮�?,cat:'rice'},
-    {name:'?�팸마요??��',cat:'rice'},{name:'참치마요??��',cat:'rice'},{name:'간장계�?�?,cat:'rice'},{name:'김치볶?�밥',cat:'rice'},
-    {name:'?�채�?,cat:'chinese'},{name:'?�우볶음�?,cat:'chinese'},{name:'?��??�이??,cat:'japanese'},{name:'카레?�이??,cat:'rice'},
-    {name:'?�까?�덮�?,cat:'japanese'},{name:'규동',cat:'rice'},{name:'가츠동',cat:'japanese'},{name:'?��???,cat:'japanese'},{name:'?�동',cat:'japanese'},
-    // �?분식
-    {name:'짜장�?,cat:'chinese'},{name:'짬뽕',cat:'chinese'},{name:'?�수??,cat:'chinese'},{name:'깐풍�?,cat:'chinese'},
-    {name:'고추?�채',cat:'chinese'},{name:'마파?��?',cat:'chinese'},{name:'마라??,cat:'chinese'},{name:'마라?�궈',cat:'chinese'},
-    {name:'?�산??,cat:'chinese'},{name:'꿔바로우',cat:'chinese'},{name:'깐쇼?�우',cat:'chinese'},
-    {name:'초밥',cat:'japanese'},{name:'?�시�???',cat:'japanese'},{name:'?�카�?,cat:'japanese'},{name:'?�멘',cat:'japanese'},
-    {name:'?�동',cat:'japanese'},{name:'?�우??,cat:'japanese'},{name:'?�끼?�바',cat:'japanese'},{name:'?��??�이???�식)',cat:'japanese'},
-    {name:'규카�?,cat:'japanese'},{name:'?�키?�키',cat:'japanese'},{name:'?�끼?�쿠',cat:'japanese'},
-    // ?�자/?�스?�/리조??    {name:'?�자(?�퍼로니)',cat:'fast'},{name:'?�자(마르게리?�)',cat:'fast'},{name:'불고기피??,cat:'fast'},
-    {name:'?�스?�(까르보나??',cat:'western'},{name:'?�스?�(?�리?�올리오)',cat:'western'},{name:'?�스?�(?�마??',cat:'western'},
-    {name:'?�스?�(로제)',cat:'western'},{name:'?�스?�(봉골??',cat:'western'},{name:'리조???�림)',cat:'western'},
-    {name:'리조??버섯)',cat:'western'},{name:'리조???�마??',cat:'western'},{name:'?�박?�테?�크',cat:'western'},{name:'?�테?�크',cat:'western'},
-    {name:'감바??,cat:'western'},{name:'?�러?�파?��?',cat:'western'},
-    // ?�시??    {name:'?��?��',cat:'vietnamese'},{name:'분짜',cat:'vietnamese'},{name:'반�?',cat:'vietnamese'},{name:'?��???,cat:'thai'},
-    {name:'?�시고렝',cat:'seasia'},{name:'?�사',cat:'seasia'},{name:'카오??,cat:'thai'},{name:'카오만까??,cat:'thai'},{name:'?�얌�?,cat:'thai'},
-    {name:'?�테',cat:'seasia'},{name:'바쿠??,cat:'seasia'},{name:'?��??�르치킨?�이??,cat:'seasia'},{name:'?�브?�브',cat:'japanese'},
-    // ?�드/버거/간편
-    {name:'김�?,cat:'sandwich'},{name:'참치김�?,cat:'sandwich'},{name:'?�까?��?�?,cat:'sandwich'},{name:'컵밥',cat:'rice'},
-    {name:'?�스??,cat:'sandwich'},{name:'?�드?�치',cat:'sandwich'},{name:'?�니??,cat:'sandwich'},{name:'베이글 ?�드?�치',cat:'sandwich'},
-    {name:'?�도�?,cat:'sandwich'},{name:'?�버�?불고기버�?',cat:'fast'},{name:'?�버�?치킨버거)',cat:'fast'},{name:'?�버�??�우버거)',cat:'fast'},
-    {name:'?�버거세??,cat:'fast'},{name:'치킨버거?�트',cat:'fast'},{name:'?�자?�트',cat:'fast'},{name:'치킨?�트',cat:'fast'},
-    // ?�시???�트
-    {name:'?�시??,cat:'etc'},{name:'?�식?�시??,cat:'etc'},{name:'분식?�트',cat:'etc'},{name:'?�까?�정??,cat:'japanese'},{name:'초밥?�트',cat:'japanese'},
+    // 국/탕/찌개
+    {name:'김치찌개',cat:'korean'},{name:'된장찌개',cat:'korean'},{name:'순두부찌개',cat:'korean'},{name:'부대찌개',cat:'korean'},
+    {name:'감자탕',cat:'korean'},{name:'해장국',cat:'korean'},{name:'육개장',cat:'korean'},{name:'삼계탕',cat:'korean'},
+    {name:'설렁탕',cat:'korean'},{name:'갈비탕',cat:'korean'},{name:'곰탕',cat:'korean'},{name:'추어탕',cat:'korean'},
+    // 볶음/찜/구이
+    {name:'불고기',cat:'korean'},{name:'제육볶음',cat:'korean'},{name:'돼지불백',cat:'korean'},{name:'고추장불고기',cat:'korean'},
+    {name:'오삼불고기',cat:'korean'},{name:'닭갈비',cat:'korean'},{name:'낙지볶음',cat:'korean'},{name:'오징어볶음',cat:'korean'},
+    {name:'닭볶음탕',cat:'korean'},{name:'찜닭',cat:'korean'},{name:'갈비찜',cat:'korean'},{name:'아귀찜',cat:'korean'},
+    {name:'코다리찜',cat:'korean'},{name:'김치찜',cat:'korean'},{name:'해물찜',cat:'korean'},
+    {name:'삼겹살',cat:'korean'},{name:'목살구이',cat:'korean'},{name:'갈비구이',cat:'korean'},{name:'오리불고기',cat:'korean'},
+    // 치킨/패스트
+    {name:'양념치킨',cat:'fast'},{name:'간장치킨',cat:'fast'},{name:'후라이드치킨',cat:'fast'},{name:'반반치킨',cat:'fast'},
+    {name:'통닭',cat:'fast'},{name:'치킨스테이크',cat:'western'},
+    // 비빔/덮밥/볶음밥
+    {name:'비빔밥',cat:'korean'},{name:'돌솥비빔밥',cat:'korean'},{name:'제육덮밥',cat:'rice'},{name:'불고기덮밥',cat:'rice'},
+    {name:'스팸마요덮밥',cat:'rice'},{name:'참치마요덮밥',cat:'rice'},{name:'간장계란밥',cat:'rice'},{name:'김치볶음밥',cat:'rice'},
+    {name:'잡채밥',cat:'chinese'},{name:'새우볶음밥',cat:'chinese'},{name:'오므라이스',cat:'japanese'},{name:'카레라이스',cat:'rice'},
+    {name:'돈까스덮밥',cat:'japanese'},{name:'규동',cat:'rice'},{name:'가츠동',cat:'japanese'},{name:'사케동',cat:'japanese'},{name:'텐동',cat:'japanese'},
+    // 면/분식
+    {name:'짜장면',cat:'chinese'},{name:'짬뽕',cat:'chinese'},{name:'탕수육',cat:'chinese'},{name:'깐풍기',cat:'chinese'},
+    {name:'고추잡채',cat:'chinese'},{name:'마파두부',cat:'chinese'},{name:'마라탕',cat:'chinese'},{name:'마라샹궈',cat:'chinese'},
+    {name:'유산슬',cat:'chinese'},{name:'꿔바로우',cat:'chinese'},{name:'깐쇼새우',cat:'chinese'},
+    {name:'초밥',cat:'japanese'},{name:'사시미(회)',cat:'japanese'},{name:'돈카츠',cat:'japanese'},{name:'라멘',cat:'japanese'},
+    {name:'우동',cat:'japanese'},{name:'냉우동',cat:'japanese'},{name:'야끼소바',cat:'japanese'},{name:'오므라이스(일식)',cat:'japanese'},
+    {name:'규카츠',cat:'japanese'},{name:'스키야키',cat:'japanese'},{name:'야끼니쿠',cat:'japanese'},
+    // 피자/파스타/리조또
+    {name:'피자(페퍼로니)',cat:'fast'},{name:'피자(마르게리타)',cat:'fast'},{name:'불고기피자',cat:'fast'},
+    {name:'파스타(까르보나라)',cat:'western'},{name:'파스타(알리오올리오)',cat:'western'},{name:'파스타(토마토)',cat:'western'},
+    {name:'파스타(로제)',cat:'western'},{name:'파스타(봉골레)',cat:'western'},{name:'리조또(크림)',cat:'western'},
+    {name:'리조또(버섯)',cat:'western'},{name:'리조또(토마토)',cat:'western'},{name:'함박스테이크',cat:'western'},{name:'스테이크',cat:'western'},
+    {name:'감바스',cat:'western'},{name:'샐러드파스타',cat:'western'},
+    // 아시아
+    {name:'쌀국수',cat:'vietnamese'},{name:'분짜',cat:'vietnamese'},{name:'반미',cat:'vietnamese'},{name:'팟타이',cat:'thai'},
+    {name:'나시고렝',cat:'seasia'},{name:'락사',cat:'seasia'},{name:'카오팟',cat:'thai'},{name:'카오만까이',cat:'thai'},{name:'똠얌꿍',cat:'thai'},
+    {name:'사테',cat:'seasia'},{name:'바쿠테',cat:'seasia'},{name:'싱가포르치킨라이스',cat:'seasia'},{name:'샤브샤브',cat:'japanese'},
+    // 샌드/버거/간편
+    {name:'김밥',cat:'sandwich'},{name:'참치김밥',cat:'sandwich'},{name:'돈까스김밥',cat:'sandwich'},{name:'컵밥',cat:'rice'},
+    {name:'토스트',cat:'sandwich'},{name:'샌드위치',cat:'sandwich'},{name:'파니니',cat:'sandwich'},{name:'베이글 샌드위치',cat:'sandwich'},
+    {name:'핫도그',cat:'sandwich'},{name:'햄버거(불고기버거)',cat:'fast'},{name:'햄버거(치킨버거)',cat:'fast'},{name:'햄버거(새우버거)',cat:'fast'},
+    {name:'햄버거세트',cat:'fast'},{name:'치킨버거세트',cat:'fast'},{name:'피자세트',cat:'fast'},{name:'치킨세트',cat:'fast'},
+    // 도시락/세트
+    {name:'도시락',cat:'etc'},{name:'한식도시락',cat:'etc'},{name:'분식세트',cat:'etc'},{name:'돈까스정식',cat:'japanese'},{name:'초밥세트',cat:'japanese'},
   ];
 
   const els = {
@@ -155,7 +159,7 @@
       if(els.activeTagLabel) els.activeTagLabel.hidden = true;
       return;
     }
-    const labelMap = { quick:'간편', light:'가벼�?', heavy:'?�든', spicy:'매운', soup:'�?��', cold:'?�원?? };
+    const labelMap = { quick:'간편', light:'가벼움', heavy:'든든', spicy:'매운', soup:'국물', cold:'시원함' };
     arr.forEach(id => {
       const b = document.createElement('button');
       b.type='button'; b.className='chip'; b.textContent = labelMap[id] || id;
@@ -199,12 +203,12 @@
     }
     const n=it.name, c=it.cat;
     const tests={
-      quick: ()=> c==='sandwich'||c==='fast'||/김�??�드?�치|?�스??반�?|버거|컵밥|?�니기리/.test(n),
-      light: ()=> c==='salad'||c==='vietnamese'||/?�러???��?|?�프/.test(n),
-      heavy: ()=> ['rice','korean','chinese','western','fast'].includes(c)||/?�테?�크|치킨|?�자|?�수??찜닭/.test(n),
-      spicy: ()=> /매운|마라|짬뽕|불닭|?��?|김�?부?�|?�볶??.test(n),
-      soup:  ()=> /찌개|�????�멘|?�동|짬뽕|칼국???�제�??�프/.test(n),
-      cold:  ()=> /?�면|?�우???�바|?�러??.test(n) || c==='salad',
+      quick: ()=> c==='sandwich'||c==='fast'||/김밥|샌드위치|토스트|반미|버거|컵밥|오니기리/.test(n),
+      light: ()=> c==='salad'||c==='vietnamese'||/샐러드|포케|수프/.test(n),
+      heavy: ()=> ['rice','korean','chinese','western','fast'].includes(c)||/스테이크|치킨|피자|탕수육|찜닭/.test(n),
+      spicy: ()=> /매운|마라|짬뽕|불닭|낙지|김치|부대|떡볶이/.test(n),
+      soup:  ()=> /찌개|국|탕|라멘|우동|짬뽕|칼국수|수제비|수프/.test(n),
+      cold:  ()=> /냉면|냉우동|소바|샐러드/.test(n) || c==='salad',
     };
     return wanted.every(k => tests[k]?tests[k]():true);
   }
@@ -216,68 +220,68 @@
     const n = (name||'').trim();
     // Per-dish lines (add as needed)
     const L = {
-      '김치찌�?:[ '보�?보�? 매콤 구수?�이 코끝??간질?�요.', '�????�갈??�?�� 촵�??�늘 컨디???�라갑니??' ],
-      '?�장찌개':[ '구수???�장?�이 깊어??', '?��?·채소가 ?�각, ?�백?�이 ?�안 가??' ],
-      '?�두부찌개':[ '부?��????�두부??칼칼??�?��???�며?�어??', '???�갈??몸이 ?�르�??�립니??' ],
-      '부?�찌개':[ '진득?????��??� ?�큰?�의 조합.', '?�면?�리 ?�고 ?�루룩�??�복 ?�치 급상??' ],
-      '?�멘':[ '진한 ?�프�?면발???�시�? 차슈 ???�으�?마무�?', '?�루룩�?깊�? 감칠맛이 ?�아??' ],
-      '?�동':[ '?��???면발�?깔끔??�?��???�석.', '?�묵 ???�솔, 마음까�? ?�뜻?�져??' ],
-      '?�면':[ '차�????�수??�?��감이 ?��?, '겨자 ?? ?�초 ?�르�? ?�원?�이 맴돌?�요.' ],
-      '짜장�?:[ '?�큰 짜장�?면발??�??�라붙어??', '?�무지 ???? 비비???�간 미소가 번집?�다.' ],
-      '짬뽕':[ '불향 ?�린 ?�큰 �?��???�물??가??', '??모금???�캬~?��? ?�로 ?��???' ],
-      '초밥':[ '밥알 ?��?, ?�선???�?�???�맛.', '?�?�비 ?��?간장 촉�??�뜻?�게 깔끔.' ],
-      '?�시�???':[ '차갑�??��????�감???�쾌?�요.', '바다???�맛???�르륵�?미끄?�집?�다.' ],
-      '?�카�?:[ '겉바?�촉??교과??', '?�스 촉�??�툼??고기?�서 ?�즙????' ],
-      '규동':[ '?�큰�?�� ?�고기�? ?�파??조화.', '?�끈??밥과 ?��??��??�이 바빠?�요.' ],
-      '가츠동':[ '부?�러??카츠+?��???촉촉??', '?�파 ?�이 ?�며???�근??????' ],
-      '?��???:[ '?�어??고소?�이 부?�럽�??�져??', '?�자·?�?�비 ?�짝???�뜻 ?�백.' ],
-      '?�동':[ '바삭???�김�??�짠 ?�스??묘�?.', '밥과 ?�께 ?�?��?만족감이 �?차요.' ],
-      '?�자(?�퍼로니)':[ '치즈가 쭈욱??�?��???�퍼로니??존재�?', '??조각???�복???�안 가??' ],
-      '?�스?�(까르보나??':[ '?�리미한 ?�스가 면을 감싸??', '베이컨의 �?��?�과 ?�추 ?�의 마침??' ],
-      '?�스?�(?�리?�올리오)':[ '?�리브오?�의 ?�백?? 마늘 ?�이 ?�솔.', '?�플?��?�?계속 ?�각?�는 �?' ],
-      '카레?�이??:[ '?�신료의 ?�근?�과 부?�러???�스.', '밥이 ?�술???�뜻???�로가 ?�니??' ],
-      '불고�?:[ '?�짝지근한 불향???�?�?�요.', '참기�?고소?�에 ?�꼬리�? ?�라갑니??' ],
-      '?�육볶음':[ '매콤?�콤 밥도?�의 ?�석.', '?�추???�서 촵�?기분까�? 좋아?�요.' ],
-      '?��?��':[ '진한 ?�수???�브???�뜻?�이 ?�해?�요.', '면발 ?�루룩�?개운?�게 마무�?' ],
-      '분짜':[ '??��고기?� ?�큼 ?�스??조화.', '?�브?� ?�께 바삭???�큼??콤보.' ],
-      '반�?':[ '바삭??바게?�에 촉촉???�재�?', '고수 ???��??�긋?�이 ?�아?�니??' ],
+      '김치찌개':[ '보글보글 매콤 구수함이 코끝을 간질여요.', '밥 한 숟갈에 국물 촵— 오늘 컨디션 올라갑니다.' ],
+      '된장찌개':[ '구수한 된장향이 깊어요.', '두부·채소가 사각, 담백함이 입안 가득.' ],
+      '순두부찌개':[ '부들부들 순두부에 칼칼한 국물이 스며들어요.', '한 숟갈에 몸이 사르르 풀립니다.' ],
+      '부대찌개':[ '진득한 햄 풍미와 얼큰함의 조합.', '라면사리 넣고 후루룩— 행복 수치 급상승!' ],
+      '라멘':[ '진한 스프로 면발을 적시고, 차슈 한 점으로 마무리.', '후루룩— 깊은 감칠맛이 남아요.' ],
+      '우동':[ '탱글한 면발과 깔끔한 국물의 정석.', '어묵 향 솔솔, 마음까지 따뜻해져요.' ],
+      '냉면':[ '차가운 육수의 청량감이 확—', '겨자 톡, 식초 사르르. 시원함이 맴돌아요.' ],
+      '짜장면':[ '달큰 짜장과 면발이 착 달라붙어요.', '단무지 한 입, 비비는 순간 미소가 번집니다.' ],
+      '짬뽕':[ '불향 어린 얼큰 국물에 해물이 가득.', '한 모금에 “캬~”가 절로 나와요.' ],
+      '초밥':[ '밥알 탱글, 생선의 은은한 단맛.', '와사비 톡— 간장 촉— 산뜻하게 깔끔.' ],
+      '사시미(회)':[ '차갑고 탱글한 식감이 상쾌해요.', '바다의 단맛이 스르륵— 미끄러집니다.' ],
+      '돈카츠':[ '겉바속촉의 교과서.', '소스 촉— 두툼한 고기에서 육즙이 팡!' ],
+      '규동':[ '달큰짭짤 소고기와 양파의 조화.', '뜨끈한 밥과 쓱— 숟가락이 바빠져요.' ],
+      '가츠동':[ '부드러운 카츠+달걀의 촉촉함.', '양파 향이 스며든 포근한 한 끼.' ],
+      '사케동':[ '연어의 고소함이 부드럽게 퍼져요.', '유자·와사비 살짝— 산뜻 담백.' ],
+      '텐동':[ '바삭한 튀김과 단짠 소스의 묘미.', '밥과 함께 와앙— 만족감이 꽉 차요.' ],
+      '피자(페퍼로니)':[ '치즈가 쭈욱— 짭짤한 페퍼로니의 존재감.', '한 조각의 행복이 입안 가득.' ],
+      '파스타(까르보나라)':[ '크리미한 소스가 면을 감싸요.', '베이컨의 짭짤함과 후추 향의 마침표.' ],
+      '파스타(알리오올리오)':[ '올리브오일의 담백함, 마늘 향이 솔솔.', '심플하지만 계속 생각나는 맛.' ],
+      '카레라이스':[ '향신료의 포근함과 부드러운 소스.', '밥이 술술— 따뜻한 위로가 됩니다.' ],
+      '불고기':[ '달짝지근한 불향이 은은해요.', '참기름 고소함에 입꼬리가 올라갑니다.' ],
+      '제육볶음':[ '매콤달콤 밥도둑의 정석.', '상추에 싸서 촵— 기분까지 좋아져요.' ],
+      '쌀국수':[ '진한 육수에 허브의 산뜻함이 더해져요.', '면발 후루룩— 개운하게 마무리.' ],
+      '분짜':[ '숯불고기와 상큼 소스의 조화.', '허브와 함께 바삭함+상큼함 콤보.' ],
+      '반미':[ '바삭한 바게트에 촉촉한 속재료.', '고수 한 잎— 향긋함이 살아납니다.' ],
     };
     const fallback = (reA, reB)=>{
-      const a = reA || '?�입???��????��?!';
-      const b = reB || '?�늘???�든?�게 기분 ??';
+      const a = reA || '한입에 퍼지는 풍미!';
+      const b = reB || '오늘도 든든하게 기분 업.';
       return [a,b];
     };
     // If exact mapping exists, pick 2 lines randomly
     if (L[n]){
       const arr = L[n];
       const pick2 = arr.length >= 2 ? arr.slice().sort(()=>Math.random()-0.5).slice(0,2) : arr;
-      return `<span class="blurb-title">�??�현</span>${pick2.map(x=>`<p>${x}</p>`).join('')}`;
+      return `<span class="blurb-title">맛 표현</span>${pick2.map(x=>`<p>${x}</p>`).join('')}`;
     }
     // Pattern-based fallback with variety
     const is=(re)=>re.test(n);
     let lines = [];
-    if(is(/?�멘|?�동|짬뽕|칼국???�제�?�?��|�?��|??찌개/)) lines = [ '?�끈??�?��???�루룩�?몸이 ?�르�?', '김 ?�리??그릇?�서 ?�근?�이 ?�라?�??' ];
-    else if(is(/?�면|?�우???�바|물냉|?�모밀/)) lines = [ '차�????�수??�?���? ?�원?�게 ???��???', '겨자 ?? ?�초 ?�르르�?머리까�? 맑아?�요.' ];
-    else if(is(/마라|불닭|매운|?��?|쭈꾸�?김�?칠리/)) lines = [ '?�얼??매운맛이 ?�트?�스�??��?, '불맛�??�께 ?�워 충전 ?�료!' ];
-    else if(is(/?�까??카츠|가�??�김|치킨|?�념치킨|?�라?�드|깐풍�?깐쇼/)) lines = [ '겉바?�촉! 바삭 ?�리??고소?�이 ?�팡.', '?�짠 ?�스까�? ?�해??만족??MAX.' ];
-    else if(is(/?�자|리조???�테?�크|?�박|감바???�스?�/)) lines = [ '버터?�과 치즈??진한 ?��?가 ?�안??감싸??', '?�스가 촉�?�?밥과 찰떡궁합.' ];
-    else if(is(/초밥|?�시�??�덮�?물회/)) lines = [ '바다???�뜻???�맛???�르�?', '?��????�감???�안??�?��?�게.' ];
-    else if(is(/카레|카레?�이???�이?�이??)) lines = [ '?�신료의 ?�뜻?�이 ?�근?�요.', '부?�러???�스??밥이 ?�술.' ];
-    else if(is(/??��|규동|가츠동|?��????�동|컵밥/)) lines = [ '?�끈??�??�에 ?�성???�핑!', '비비???�간 ?�복?��? ?�라갑니??' ];
-    else if(is(/김�??�드?�치|?�스??버거|반�?|?�도�?)) lines = [ '???�에 ?��?간편?��?�??�든.', '?�안?�서 ?�껴지???�만감이 좋아??' ];
-    else if(is(/?�러???�러?�파?��?|분짜|?��?��/)) lines = [ '?�삭?�삭 ?�뜻??밸런??', '?�큼 ?�백??가볍게 ?�너지 충전.' ];
+    if(is(/라멘|우동|짬뽕|칼국수|수제비|국수|국밥|탕|찌개/)) lines = [ '뜨끈한 국물에 후루룩— 몸이 사르르.', '김 서리는 그릇에서 포근함이 올라와요.' ];
+    else if(is(/냉면|냉우동|소바|물냉|냉모밀/)) lines = [ '차가운 육수의 청량감! 시원하게 한 젓가락.', '겨자 톡, 식초 사르르— 머리까지 맑아져요.' ];
+    else if(is(/마라|불닭|매운|낙지|쭈꾸미|김치|칠리/)) lines = [ '얼얼한 매운맛이 스트레스를 싹—', '불맛과 함께 파워 충전 완료!' ];
+    else if(is(/돈까스|카츠|가츠|튀김|치킨|양념치킨|후라이드|깐풍기|깐쇼/)) lines = [ '겉바속촉! 바삭 소리에 고소함이 팡팡.', '단짠 소스까지 더해져 만족도 MAX.' ];
+    else if(is(/피자|리조또|스테이크|함박|감바스|파스타/)) lines = [ '버터향과 치즈의 진한 풍미가 입안을 감싸요.', '소스가 촉— 면/밥과 찰떡궁합.' ];
+    else if(is(/초밥|사시미|회덮밥|물회/)) lines = [ '바다의 산뜻한 단맛이 스르륵.', '탱글한 식감이 입안을 청량하게.' ];
+    else if(is(/카레|카레라이스|하이라이스/)) lines = [ '향신료의 따뜻함이 포근해요.', '부드러운 소스에 밥이 술술.' ];
+    else if(is(/덮밥|규동|가츠동|사케동|텐동|컵밥/)) lines = [ '따끈한 밥 위에 풍성한 토핑!', '비비는 순간 행복도가 올라갑니다.' ];
+    else if(is(/김밥|샌드위치|토스트|버거|반미|핫도그/)) lines = [ '한 입에 쏙— 간편하지만 든든.', '손안에서 느껴지는 포만감이 좋아요.' ];
+    else if(is(/샐러드|샐러드파스타|분짜|쌀국수/)) lines = [ '아삭아삭 산뜻한 밸런스.', '상큼 담백— 가볍게 에너지 충전.' ];
     else lines = fallback();
-    return `<span class="blurb-title">�??�현</span>${lines.map(x=>`<p>${x}</p>`).join('')}`;
+    return `<span class="blurb-title">맛 표현</span>${lines.map(x=>`<p>${x}</p>`).join('')}`;
   }
 
   // Render condition sheet chips
   const COND_TAGS = [
     { id:'quick', label:'간편' },
-    { id:'light', label:'가벼�?' },
-    { id:'heavy', label:'?�든' },
+    { id:'light', label:'가벼움' },
+    { id:'heavy', label:'든든' },
     { id:'spicy', label:'매운' },
-    { id:'soup',  label:'�?��' },
-    { id:'cold',  label:'?�원?? },
+    { id:'soup',  label:'국물' },
+    { id:'cold',  label:'시원함' },
   ];
   const tempCond = { tags: [], cats: new Set() };
   function renderCondSheet(){
@@ -320,13 +324,13 @@
     const useCats = (cond && cond.cats && cond.cats.size>0) ? cond.cats : (state.activeCats.size>0 ? state.activeCats : null);
     if(useCats){ items = items.filter(it=>useCats.has(it.cat)); }
     if(useCats && !items.length){
-      showEmptyResult('?�택??카테고리???�록??메뉴가 ?�어?? ?�른 카테고리�?골라보세??');
+      showEmptyResult('선택한 카테고리에 등록된 메뉴가 없어요. 다른 카테고리를 골라보세요!');
       return;
     }
     const useTags = (cond && cond.tags && cond.tags.length>0) ? cond.tags : (state.activeTags || []);
     let pool = items.filter(it=>matches(it, useTags));
     if(useTags && useTags.length && !pool.length){
-      showEmptyResult('조건??맞는 메뉴가 ?�어?? 조건??조정?�보?�요!');
+      showEmptyResult('조건에 맞는 메뉴가 없어요. 조건을 조정해보세요!');
       return;
     }
     if(!pool.length){
@@ -351,18 +355,18 @@
   // Seasonal
   function renderSeasonal(){
     if(!els.seasonalList) return;
-    const M = {1:['�?,'과메�?,'?��?,'미나�?,'?�금�?,'감귤'],2:['광어','?�럭','�?,'?�래','?�이','꼬막'],3:['주꾸�?,'?�다�?,'??,'?�래','?�기'],4:['주꾸�?,'멍게','참나�?,'비빔�?��','봄동'],5:['쭈꾸�?,'?�어(�?','매실','주키??,'?�이'],6:['참치','병어','?�수??,'?�마??,'블루베리'],7:['민어','?�어','?�박','참외','?�마??,'?�수??],8:['?�복','갈치','복숭??,'?�도','가지'],9:['?�어(가??','꽃게','�?,'?�과','무화�?,'고구�?],10:['?�??,'?�어','?��?','�?,'곶감','배추'],11:['방어','�?,'�?,'배추','�?,'?�감'],12:['방어','꼬막','�?,'?��?,'?�금�?,'감귤']};
+    const M = {1:['굴','과메기','대구','미나리','시금치','감귤'],2:['광어','우럭','굴','달래','냉이','꼬막'],3:['주꾸미','도다리','쑥','달래','딸기'],4:['주꾸미','멍게','참나물','비빔국수','봄동'],5:['쭈꾸미','전어(봄)','매실','주키니','오이'],6:['참치','병어','옥수수','토마토','블루베리'],7:['민어','장어','수박','참외','토마토','옥수수'],8:['전복','갈치','복숭아','포도','가지'],9:['전어(가을)','꽃게','배','사과','무화과','고구마'],10:['대하','전어','낙지','밤','곶감','배추'],11:['방어','굴','무','배추','귤','단감'],12:['방어','꼬막','굴','대구','시금치','감귤']};
     const now=new Date(), m=now.getMonth()+1, list=M[m]||[]; els.seasonalList.innerHTML='';
     list.forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
-    if(els.seasonalTitle) els.seasonalTitle.textContent = `${m}???�철?�식`;
+    if(els.seasonalTitle) els.seasonalTitle.textContent = `${m}월 제철음식`;
   }
 
   // Nearby + Weather (for display only)
-  function setNearbyInfo(){ if(!els.nearbyInfo) return; if(state.nearby&&state.nearby.ready&&state.nearby.presentCats.length){ const label=new Map(state.categories.map(c=>[c.id,c.name])); const labs=state.nearby.presentCats.map(id=>label.get(id)||id).slice(0,6); els.nearbyInfo.textContent=`근처 감�?: ${labs.join(' · ')}`; } else els.nearbyInfo.textContent=''; }
-  function mapWeather(code,temp){ let cond='?????�음', emoji='?���?; const c=Number(code); if(c===0){cond='맑음';emoji='?��?;} else if([1,2,3].includes(c)){cond='구름 조금';emoji='??;} else if([45,48].includes(c)){cond='?�개';emoji='?���?;} else if([51,53,55,56,57].includes(c)){cond='?�슬�?;emoji='?���?;} else if([61,63,65,66,67,80,81,82].includes(c)){cond='�?;emoji='?���?;} else if([71,73,75,77,85,86].includes(c)){cond='??;emoji='?�️';} else if([95,96,97].includes(c)){cond='?�우';emoji='?�️';} const t=(temp!=null&&Number.isFinite(temp))?`${Math.round(temp)}°C`:''; return { text: t?`${cond} · ${t}`:cond, emoji } }
+  function setNearbyInfo(){ if(!els.nearbyInfo) return; if(state.nearby&&state.nearby.ready&&state.nearby.presentCats.length){ const label=new Map(state.categories.map(c=>[c.id,c.name])); const labs=state.nearby.presentCats.map(id=>label.get(id)||id).slice(0,6); els.nearbyInfo.textContent=`근처 감지: ${labs.join(' · ')}`; } else els.nearbyInfo.textContent=''; }
+  function mapWeather(code,temp){ let cond='알 수 없음', emoji='🌤️'; const c=Number(code); if(c===0){cond='맑음';emoji='☀️';} else if([1,2,3].includes(c)){cond='구름 조금';emoji='⛅';} else if([45,48].includes(c)){cond='안개';emoji='🌫️';} else if([51,53,55,56,57].includes(c)){cond='이슬비';emoji='🌦️';} else if([61,63,65,66,67,80,81,82].includes(c)){cond='비';emoji='🌧️';} else if([71,73,75,77,85,86].includes(c)){cond='눈';emoji='❄️';} else if([95,96,97].includes(c)){cond='뇌우';emoji='⛈️';} const t=(temp!=null&&Number.isFinite(temp))?`${Math.round(temp)}°C`:''; return { text: t?`${cond} · ${t}`:cond, emoji } }
   function catCuisineMap(){ return { korean:['korean','korea'], japanese:['japanese','sushi','ramen','udon','soba'], chinese:['chinese'], western:['italian','french','steak_house','european','american'], noodle:['noodle','ramen','udon','soba'], salad:['salad','healthy'], sandwich:['sandwich','bagel','deli'], fast:['burger','pizza','fried_chicken'], vietnamese:['vietnamese','pho','banh_mi'], thai:['thai'], indian:['indian','nepalese'], mexican:['mexican','tacos','burrito'], brunch:['breakfast','brunch','cafe'], med:['mediterranean','turkish','greek','middle_eastern','kebab','shawarma'], seasia:['indonesian','malaysian','singaporean'], dessert:['ice_cream','cake','waffle','dessert','bakery'], etc:[] } }
   async function initNearbyPresence(lat,lng,radius=1200){ try{ const base="[out:json][timeout:12];"+"(node[\"amenity\"~\"restaurant|fast_food|cafe\"](around:"+radius+","+lat+","+lng+");"+"way[\"amenity\"~\"restaurant|fast_food|cafe\"](around:"+radius+","+lat+","+lng+");"+"relation[\"amenity\"~\"restaurant|fast_food|cafe\"](around:"+radius+","+lat+","+lng+"););"+"out tags center;"; const urls=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter']; let ok=false,data=null; for(const u of urls){ try{ const r=await fetch(u+'?data='+encodeURIComponent(base)); if(r.ok){ data=await r.json(); ok=true; break;} }catch{} } if(!ok) throw 0; const cuisines=new Set(); if(Array.isArray(data.elements)){ for(const el of data.elements){ const t=el.tags||{}; const c=(t.cuisine||'').toLowerCase(); if(!c) continue; c.split(';').map(s=>s.trim()).filter(Boolean).forEach(v=>cuisines.add(v)); } } const map=catCuisineMap(); const presentCats=Object.keys(map).filter(cat=>map[cat].some(tag=>cuisines.has(tag))); state.nearby={ready:true,presentCats,radius,ts:Date.now(),lat,lng}; saveState(); setNearbyInfo(); }catch{ state.nearby={ready:false,presentCats:[],radius,ts:Date.now(),lat,lng}; saveState(); setNearbyInfo(); } }
-  async function initWeather(){ try{ if(!navigator.geolocation) return; const pos=await new Promise((res,rej)=>{ navigator.geolocation.getCurrentPosition(res,rej,{enableHighAccuracy:true,timeout:8000}); }); const {latitude:lat,longitude:lng}=pos.coords; state.location={lat,lng,ts:Date.now()}; saveState(); initNearbyPresence(lat,lng).catch(()=>{}); const url=new URL('https://api.open-meteo.com/v1/forecast'); url.searchParams.set('latitude',lat); url.searchParams.set('longitude',lng); url.searchParams.set('current_weather','true'); url.searchParams.set('timezone','auto'); const r=await fetch(url.toString()); if(!r.ok) throw 0; const data=await r.json(); let code=null,temp=null; if(data.current_weather){ code=data.current_weather.weathercode; temp=data.current_weather.temperature; } const info=mapWeather(code,temp); state.weather={ready:true,summary:info.text,code,temp}; if(els.weatherInfo) els.weatherInfo.textContent=`?�재 ?�씨: ${info.emoji} ${info.text}`; }catch{ if(els.weatherInfo) els.weatherInfo.textContent=''; } }
+  async function initWeather(){ try{ if(!navigator.geolocation) return; const pos=await new Promise((res,rej)=>{ navigator.geolocation.getCurrentPosition(res,rej,{enableHighAccuracy:true,timeout:8000}); }); const {latitude:lat,longitude:lng}=pos.coords; state.location={lat,lng,ts:Date.now()}; saveState(); initNearbyPresence(lat,lng).catch(()=>{}); const url=new URL('https://api.open-meteo.com/v1/forecast'); url.searchParams.set('latitude',lat); url.searchParams.set('longitude',lng); url.searchParams.set('current_weather','true'); url.searchParams.set('timezone','auto'); const r=await fetch(url.toString()); if(!r.ok) throw 0; const data=await r.json(); let code=null,temp=null; if(data.current_weather){ code=data.current_weather.weathercode; temp=data.current_weather.temperature; } const info=mapWeather(code,temp); state.weather={ready:true,summary:info.text,code,temp}; if(els.weatherInfo) els.weatherInfo.textContent=`현재 날씨: ${info.emoji} ${info.text}`; }catch{ if(els.weatherInfo) els.weatherInfo.textContent=''; } }
 
   // Share helpers
   function tryInitKakao(){
@@ -377,8 +381,8 @@
   function getSharePayload(){
     const name = (state.lastPick || '').trim() || (els.result && (els.result.textContent||'').trim()) || '';
     const url = (typeof location !== 'undefined' && location.href) ? location.href : '';
-    const text = name ? `?�늘 ?�심 추천: ${name}` : '룰렛???�려 ?�늘???�심??골라보세??';
-    const title = '?�심 추천';
+    const text = name ? `오늘 점심 추천: ${name}` : '룰렛을 돌려 오늘의 점심을 골라보세요!';
+    const title = '점심 추천';
     return { name, text, url, title };
   }
 
@@ -393,24 +397,31 @@
   if(els.clearCatsBtn) els.clearCatsBtn.addEventListener('click', ()=>{ tempCond.cats = new Set(); renderCondSheet(); });
 
   if(els.shareBtn){
-  els.shareBtn.addEventListener('click', async ()=>{
-    const pick = (state.lastPick || '').trim() || (els.result && (els.result.textContent||'').trim()) || '';
-    const text = pick ? 오늘 점심 추천:  : '룰렛을 돌려 오늘의 점심을 골라보세요!';
-    const url = (typeof location !== 'undefined' && location.href) ? location.href : '';
-    const payload = [text, url].filter(Boolean).join('\n');
-    try{
-      if(navigator.clipboard && navigator.clipboard.writeText){
-        await navigator.clipboard.writeText(payload);
-        els.shareBtn.textContent = '복사됨!';
-        setTimeout(()=>{ els.shareBtn.textContent='복사하기'; }, 1200);
+    els.shareBtn.addEventListener('click', async ()=>{
+      const pick = state.lastPick;
+      const text = pick ? `오늘 점심 추천: ${pick}` : '룰렛을 돌려 오늘의 점심을 골라보세요!';
+      const url = (typeof location !== 'undefined' && location.href) ? location.href : '';
+      // Always copy: current menu + page link
+      try{
+        const payload = [text, url].filter(Boolean).join('\n');
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          await navigator.clipboard.writeText(payload);
+          els.shareBtn.textContent = '복사됨!';
+          setTimeout(()=>{ els.shareBtn.textContent='공유하기'; }, 1200);
+        } else {
+          const t=document.createElement('textarea'); t.value=payload; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
+          els.shareBtn.textContent = '복사됨!';
+          setTimeout(()=>{ els.shareBtn.textContent='공유하기'; }, 1200);
+        }
+      }catch{}
+      if(navigator.share){
+        try{ await navigator.share({ title: '점심 추천', text, url }); }
+        catch{}
       } else {
-        const t=document.createElement('textarea'); t.value=payload; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
-        els.shareBtn.textContent = '복사됨!';
-        setTimeout(()=>{ els.shareBtn.textContent='복사하기'; }, 1200);
+        alert('이 브라우저에서는 공유 기능이 지원되지 않아요. 모바일 브라우저에서 사용해보세요.');
       }
-    }catch{}
-  });
-}
+    });
+  }
 
   if(els.kakaoShareBtn){
     els.kakaoShareBtn.addEventListener('click', async ()=>{
@@ -423,10 +434,10 @@
             content: { title: p.title, description: p.text, imageUrl: p.url, link: { mobileWebUrl: p.url, webUrl: p.url } }
           });
         }else{
-          alert('카카?�톡 공유�??�용?�려�?Kakao ?????�정???�요?�니?? meta[kakao-app-key] ?�는 localStorage "lm_kakao_app_key"???��? ?�정??주세??');
+          alert('카카오톡 공유를 사용하려면 Kakao 앱 키 설정이 필요합니다. meta[kakao-app-key] 또는 localStorage "lm_kakao_app_key"에 키를 설정해 주세요.');
         }
       }catch{
-        alert('카카?�톡 공유 �?문제가 발생?�어?? 링크 복사�?공유??주세??');
+        alert('카카오톡 공유 중 문제가 발생했어요. 링크 복사로 공유해 주세요.');
       }
     });
   }
@@ -438,22 +449,22 @@
       try{
         if(navigator.clipboard && navigator.clipboard.writeText){
           await navigator.clipboard.writeText(payload);
-          els.copyShareBtn.textContent = '복사??';
+          els.copyShareBtn.textContent = '복사됨!';
           setTimeout(()=>{ els.copyShareBtn.textContent='링크 복사'; }, 1200);
         }else{
           const t=document.createElement('textarea'); t.value=payload; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
-          els.copyShareBtn.textContent = '복사??';
+          els.copyShareBtn.textContent = '복사됨!';
           setTimeout(()=>{ els.copyShareBtn.textContent='링크 복사'; }, 1200);
         }
       }catch{
-        alert('복사???�패?�어?? ?�동?�로 복사??주세??');
+        alert('복사에 실패했어요. 수동으로 복사해 주세요.');
       }
     });
   }
 
   // Init
   migrate();
-  // ??�� 초기?�된 ?�태�??�작
+  // 항상 초기화된 상태로 시작
   state.selectedCats = new Set(state.categories.map(c=>c.id)); saveState();
   renderSeasonal();
   renderActiveCats();
@@ -462,4 +473,3 @@
   tryInitKakao();
   initWeather();
 })();
-
