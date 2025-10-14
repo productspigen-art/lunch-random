@@ -78,9 +78,7 @@
     activeTagBar: document.getElementById('activeTagBar'),
     resultBlurb: document.getElementById('resultBlurb'),
     flavorText: document.getElementById('flavorText'),
-    shareText: document.getElementById('shareText'),
     shareBtn: document.getElementById('shareBtn'),
-    copyShareBtn: document.getElementById('copyShareBtn'),
   };
 
   const storage = {
@@ -193,12 +191,7 @@
     return [];
   }
 
-  function setShareMessage(){
-    if(!els.shareText) return;
-    const pick = state.lastPick;
-    const msg = pick ? `오늘 점심 추천: ${pick}` : '룰렛을 돌려 오늘의 점심을 골라보세요!';
-    els.shareText.value = msg;
-  }
+  // No share text field; share uses Web Share API directly.
 
   function matches(it, cond){
     if(!cond || !cond.length) return true;
@@ -355,7 +348,6 @@
       state.lastPick=final.name; saveState(); els.result.textContent = final.name;
       if(els.flavorText) els.flavorText.innerHTML = '';
       else if(els.resultBlurb) els.resultBlurb.textContent = '';
-      setShareMessage();
       if(els.resultSection){ els.resultSection.classList.remove('is-spinning'); }
     }, 900);
   }
@@ -388,21 +380,14 @@
 
   if(els.shareBtn){
     els.shareBtn.addEventListener('click', async ()=>{
-      const text = els.shareText?.value || '';
-      const url = location && location.href ? location.href : '';
+      const pick = state.lastPick;
+      const text = pick ? `오늘 점심 추천: ${pick}` : '룰렛을 돌려 오늘의 점심을 골라보세요!';
+      const url = (typeof location !== 'undefined' && location.href) ? location.href : '';
       if(navigator.share){
         try{ await navigator.share({ title: '점심 추천', text, url }); }
         catch{}
-      }else if(navigator.clipboard && navigator.clipboard.writeText){
-        try{ await navigator.clipboard.writeText(text); els.shareBtn.textContent='복사됨!'; setTimeout(()=>{ els.shareBtn.textContent='공유하기'; }, 1200); }catch{}
-      }
-    });
-  }
-  if(els.copyShareBtn){
-    els.copyShareBtn.addEventListener('click', async ()=>{
-      const text = els.shareText?.value || '';
-      if(navigator.clipboard && navigator.clipboard.writeText){
-        try{ await navigator.clipboard.writeText(text); els.copyShareBtn.textContent='복사됨!'; setTimeout(()=>{ els.copyShareBtn.textContent='복사'; }, 1200); }catch{}
+      } else {
+        alert('이 브라우저에서는 공유 기능이 지원되지 않아요. 모바일 브라우저에서 사용해보세요.');
       }
     });
   }
@@ -414,7 +399,6 @@
   renderSeasonal();
   renderActiveCats();
   renderActiveTags();
-  setShareMessage();
   setNearbyInfo();
   initWeather();
 })();
