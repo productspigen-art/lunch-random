@@ -79,8 +79,6 @@
     resultBlurb: document.getElementById('resultBlurb'),
     flavorText: document.getElementById('flavorText'),
     shareBtn: document.getElementById('shareBtn'),
-    kakaoShareBtn: document.getElementById('kakaoShareBtn'),
-    copyShareBtn: document.getElementById('copyShareBtn'),
   };
 
   const storage = {
@@ -403,6 +401,19 @@
       const pick = state.lastPick;
       const text = pick ? `오늘 점심 추천: ${pick}` : '룰렛을 돌려 오늘의 점심을 골라보세요!';
       const url = (typeof location !== 'undefined' && location.href) ? location.href : '';
+      // Always copy: current menu + page link
+      try{
+        const payload = [text, url].filter(Boolean).join('\n');
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          await navigator.clipboard.writeText(payload);
+          els.shareBtn.textContent = '복사됨!';
+          setTimeout(()=>{ els.shareBtn.textContent='공유하기'; }, 1200);
+        } else {
+          const t=document.createElement('textarea'); t.value=payload; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
+          els.shareBtn.textContent = '복사됨!';
+          setTimeout(()=>{ els.shareBtn.textContent='공유하기'; }, 1200);
+        }
+      }catch{}
       if(navigator.share){
         try{ await navigator.share({ title: '점심 추천', text, url }); }
         catch{}
