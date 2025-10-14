@@ -49,7 +49,18 @@
           <div id="seasonalList" class="chips" aria-live="polite"></div>
         </section>
 
-        
+        <section aria-labelledby="share-title" class="card info-card share-card">
+          <div class="card-header">
+            <h2 id="share-title">친구에게 공유하기</h2>
+          </div>
+          <div class="share-box">
+            <input id="shareText" class="share-text" type="text" readonly value="" aria-label="공유 메시지" />
+            <div class="sheet-actions">
+              <button id="shareBtn" class="primary-btn" type="button">공유하기</button>
+              <button id="copyShareBtn" class="link-btn" type="button">복사</button>
+            </div>
+          </div>
+        </section>
       </div>
 
       <!-- 조건 선택 시트 -->

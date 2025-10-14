@@ -78,6 +78,9 @@
     activeTagBar: document.getElementById('activeTagBar'),
     resultBlurb: document.getElementById('resultBlurb'),
     flavorText: document.getElementById('flavorText'),
+    shareText: document.getElementById('shareText'),
+    shareBtn: document.getElementById('shareBtn'),
+    copyShareBtn: document.getElementById('copyShareBtn'),
   };
 
   const storage = {
@@ -188,6 +191,13 @@
       return push(raw.split(/[,\s]+/));
     }
     return [];
+  }
+
+  function setShareMessage(){
+    if(!els.shareText) return;
+    const pick = state.lastPick;
+    const msg = pick ? `오늘 점심 추천: ${pick}` : '룰렛을 돌려 오늘의 점심을 골라보세요!';
+    els.shareText.value = msg;
   }
 
   function matches(it, cond){
@@ -343,8 +353,9 @@
       clearInterval(tempTimer);
       const final = pick(pool);
       state.lastPick=final.name; saveState(); els.result.textContent = final.name;
-      if(els.flavorText) els.flavorText.innerHTML = `<p>${flavorBlurb(final.name)}</p>`;
-      else if(els.resultBlurb) els.resultBlurb.textContent = flavorBlurb(final.name);
+      if(els.flavorText) els.flavorText.innerHTML = '';
+      else if(els.resultBlurb) els.resultBlurb.textContent = '';
+      setShareMessage();
       if(els.resultSection){ els.resultSection.classList.remove('is-spinning'); }
     }, 900);
   }
@@ -375,6 +386,27 @@
   if(els.selectAllCatsBtn) els.selectAllCatsBtn.addEventListener('click', ()=>{ tempCond.cats = new Set(state.categories.filter(c=>c.id!=='dessert').map(c=>c.id)); renderCondSheet(); });
   if(els.clearCatsBtn) els.clearCatsBtn.addEventListener('click', ()=>{ tempCond.cats = new Set(); renderCondSheet(); });
 
+  if(els.shareBtn){
+    els.shareBtn.addEventListener('click', async ()=>{
+      const text = els.shareText?.value || '';
+      const url = location && location.href ? location.href : '';
+      if(navigator.share){
+        try{ await navigator.share({ title: '점심 추천', text, url }); }
+        catch{}
+      }else if(navigator.clipboard && navigator.clipboard.writeText){
+        try{ await navigator.clipboard.writeText(text); els.shareBtn.textContent='복사됨!'; setTimeout(()=>{ els.shareBtn.textContent='공유하기'; }, 1200); }catch{}
+      }
+    });
+  }
+  if(els.copyShareBtn){
+    els.copyShareBtn.addEventListener('click', async ()=>{
+      const text = els.shareText?.value || '';
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        try{ await navigator.clipboard.writeText(text); els.copyShareBtn.textContent='복사됨!'; setTimeout(()=>{ els.copyShareBtn.textContent='복사'; }, 1200); }catch{}
+      }
+    });
+  }
+
   // Init
   migrate();
   // 항상 초기화된 상태로 시작
@@ -382,6 +414,7 @@
   renderSeasonal();
   renderActiveCats();
   renderActiveTags();
+  setShareMessage();
   setNearbyInfo();
   initWeather();
 })();
