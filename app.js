@@ -174,8 +174,30 @@
     if(els.activeTagLabel) els.activeTagLabel.hidden = false;
   }
 
+  function normalizeTags(raw){
+    if(!raw) return [];
+    const push=(arr)=>{
+      const seen=new Set();
+      arr.forEach(v=>{ const t=String(v).trim().toLowerCase(); if(t) seen.add(t); });
+      return Array.from(seen);
+    };
+    if(Array.isArray(raw)){
+      return push(raw);
+    }
+    if(typeof raw === 'string'){
+      return push(raw.split(/[,\s]+/));
+    }
+    return [];
+  }
+
   function matches(it, cond){
     if(!cond || !cond.length) return true;
+    const wanted = cond.map(t=>String(t).trim().toLowerCase()).filter(Boolean);
+    if(!wanted.length) return true;
+    const explicit = normalizeTags(it.tags || (it.meta && it.meta.tags));
+    if(explicit.length){
+      return wanted.every(tag => explicit.includes(tag));
+    }
     const n=it.name, c=it.cat;
     const tests={
       quick: ()=> c==='sandwich'||c==='fast'||/김밥|샌드위치|토스트|반미|버거|컵밥|오니기리/.test(n),
@@ -185,7 +207,7 @@
       soup:  ()=> /찌개|국|탕|라멘|우동|짬뽕|칼국수|수제비|수프/.test(n),
       cold:  ()=> /냉면|냉우동|소바|샐러드/.test(n) || c==='salad',
     };
-    return cond.every(k => tests[k]?tests[k]():true);
+    return wanted.every(k => tests[k]?tests[k]():true);
   }
 
   function pick(list){ return list[Math.floor(Math.random()*list.length)]; }
@@ -284,14 +306,33 @@
     }
   }
 
+  function showEmptyResult(message){
+    state.lastPick = null;
+    saveState();
+    if(els.resultSection){ els.resultSection.classList.remove('is-spinning'); }
+    if(els.result){ els.result.textContent = message; }
+    if(els.resultBlurb) els.resultBlurb.textContent = '';
+    if(els.flavorText) els.flavorText.innerHTML = '';
+  }
+
   function spinOnce(cond){
     // apply category filter if chosen or active
     let items = basePool();
     const useCats = (cond && cond.cats && cond.cats.size>0) ? cond.cats : (state.activeCats.size>0 ? state.activeCats : null);
     if(useCats){ items = items.filter(it=>useCats.has(it.cat)); }
+    if(useCats && !items.length){
+      showEmptyResult('선택한 카테고리에 등록된 메뉴가 없어요. 다른 카테고리를 골라보세요!');
+      return;
+    }
     const useTags = (cond && cond.tags && cond.tags.length>0) ? cond.tags : (state.activeTags || []);
     let pool = items.filter(it=>matches(it, useTags));
-    if(!pool.length) pool = basePool();
+    if(useTags && useTags.length && !pool.length){
+      showEmptyResult('조건에 맞는 메뉴가 없어요. 조건을 조정해보세요!');
+      return;
+    }
+    if(!pool.length){
+      pool = items.length ? items : basePool();
+    }
     // simple flip + fast roll feel
     if(els.resultSection){ els.resultSection.classList.add('is-spinning'); }
     els.result?.classList.remove('flip-start'); void els.result?.offsetWidth; els.result?.classList.add('flip-start');
