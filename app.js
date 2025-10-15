@@ -759,6 +759,7 @@
   // Apply external KO tags dataset after first paint
   // Prefer full dataset if present; otherwise only tags update
   applyExternalFullDataset().then(()=> updateTagsFromExternal());
+}
 })();
 
 
