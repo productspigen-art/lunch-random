@@ -563,13 +563,22 @@
   }
 
   function spinOnce(cond){
-    // apply category filter if chosen or active
+    // apply category filter (union across categories)
     let items = basePool();
     const useCats = (cond && cond.cats && cond.cats.size>0) ? cond.cats : (state.activeCats.size>0 ? state.activeCats : null);
     if(useCats){ items = items.filter(it=>useCats.has(it.cat)); }
+    // apply situation/tag filter (intersection across tags)
     const useTags = (cond && cond.tags && cond.tags.length>0) ? cond.tags : (state.activeTags || []);
-    let pool = items.filter(it=>matches(it, useTags));
-    if(!pool.length) pool = basePool();
+    let pool = items;
+    if(useTags && useTags.length){ pool = pool.filter(it=>matches(it, useTags)); }
+    // intersection of category and tags only; no fallback to broader pool
+    if(!pool.length){
+      if(els.resultSection){ els.resultSection.classList.remove('is-spinning'); }
+      if(els.result) els.result.textContent = '조건에 맞는 메뉴가 없어요';
+      if(els.flavorText) els.flavorText.innerHTML = '';
+      if(els.resultBlurb) els.resultBlurb.textContent = '';
+      return;
+    }
     // simple flip + fast roll feel
     if(els.resultSection){ els.resultSection.classList.add('is-spinning'); }
     els.result?.classList.remove('flip-start'); void els.result?.offsetWidth; els.result?.classList.add('flip-start');
