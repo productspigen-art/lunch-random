@@ -1,5 +1,5 @@
 ﻿(() => {
-  const SCHEMA_VERSION = 9;
+  const SCHEMA_VERSION = 10;
 
   const DEFAULT_CATEGORIES = [
     { id: 'korean', name: '한식' }, { id: 'japanese', name: '일식' }, { id: 'chinese', name: '중식' },
@@ -364,13 +364,14 @@
 
   function migrate(){
     const ver = storage.get('lm_schema_version',0);
-    if(ver < 9){
-      // Replace items with the new curated dataset
-      state.items = buildNewItems();
-      ensureDefaultsMerged();
-      storage.set('lm_schema_version',9);
+    if(ver < 10){
+      state.items = [];
+      state.categories = [];
+      state.selectedCats = new Set();
+      storage.set('lm_schema_version',10);
       saveState();
-    } else if(ver < SCHEMA_VERSION){
+    }
+  } else if(ver < SCHEMA_VERSION){
       ensureDefaultsMerged(); storage.set('lm_schema_version',SCHEMA_VERSION); saveState();
     }
   }
@@ -762,5 +763,8 @@
   applyExternalFullDataset().then(()=> updateTagsFromExternal());
 }
 })();
+
+
+
 
 
