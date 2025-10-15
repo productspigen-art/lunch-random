@@ -1,4 +1,4 @@
-(() => {
+﻿(() => {
   const els = {
     spinQuickBtn: document.getElementById('spinQuickBtn'),
     spinWithCondBtn: document.getElementById('spinWithCondBtn'),
@@ -145,6 +145,26 @@
   if(els.closeSheetBtn) els.closeSheetBtn.addEventListener('click', closeSheet);
   if(els.selectAllCatsBtn) els.selectAllCatsBtn.addEventListener('click', ()=>{ tempCond.cats=new Set((state.categories||[]).map(c=>c.id)); renderCondSheet(); });
   if(els.clearCatsBtn) els.clearCatsBtn.addEventListener('click', ()=>{ tempCond.cats=new Set(); renderCondSheet(); });
+
+  // 초기화
+  (async function init(){ await loadMenus(); await renderSeasonal(); })();
+})();
+
+
+  // 공유 버튼: 현재 결과 + URL 복사
+  const shareBtn = document.getElementById('shareBtn');
+  if(shareBtn){
+    shareBtn.addEventListener('click', async ()=>{
+      const name = (els.result && (els.result.textContent||'').trim()) || '';
+      const url = (typeof location!=='undefined' && location.href) ? location.href : '';
+      const payload = [name?오늘 메뉴: :'', url].filter(Boolean).join('\n');
+      try{
+        if(navigator.clipboard && navigator.clipboard.writeText){ await navigator.clipboard.writeText(payload); }
+        else { const t=document.createElement('textarea'); t.value=payload; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
+        const prev = shareBtn.textContent; shareBtn.textContent='복사됨!'; setTimeout(()=> shareBtn.textContent=prev, 1200);
+      }catch{}
+    });
+  }
 
   // 초기화
   (async function init(){ await loadMenus(); await renderSeasonal(); })();
