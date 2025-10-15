@@ -414,7 +414,7 @@
   const m = now.getMonth()+1;
   const list = M[m] || [];
   els.seasonalList.innerHTML = '';
-  list.forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
+  (list.slice(0,6)).forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
   if(els.seasonalTitle) els.seasonalTitle.textContent = m + '\uC6D4 \uC81C\uCCA0\uC74C\uC2DD';
 }
   // Render all menu items in bottom list
