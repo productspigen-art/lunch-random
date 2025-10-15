@@ -160,9 +160,11 @@
   ];
 
   const CAT_MAP_KO = {
-    '기타':'etc', '기타/간편식':'etc', '기타/디저트':'dessert',
+    '기타':'etc', '기타/간편식':'etc', '기타/디저트':'dessert', '디저트':'dessert',
     '한식':'korean', '일식':'japanese', '중식':'chinese', '양식':'western',
-    '밥/덮밥':'rice', '샐러드/건강식':'salad', '샌드위치/브런치':'sandwich',
+    '밥/덮밥':'rice', '밥/도시락':'rice',
+    '샐러드/건강식':'salad',
+    '샌드위치/브런치':'sandwich', '브런치/샌드위치':'sandwich',
     '패스트푸드':'fast', '동남아식':'seasia', '베트남식':'vietnamese', '태국식':'thai',
     '분식':'etc'
   };
@@ -193,6 +195,27 @@
         return it;
       });
       if(changed){ saveState(); renderActiveTags(); renderAllMenu(); }
+    }catch{}
+  }
+
+  // Replace entire items list from external full dataset (with categories)
+  async function applyExternalFullDataset(){
+    try{
+      const res = await fetch('menu_dataset_full_5tags_with_category.json?v=2025-01-15-1', { cache:'no-store' });
+      if(!res.ok) return;
+      const data = await res.json();
+      if(!Array.isArray(data) || data.length===0) return;
+      const items = data.map(x=>({ name: x.name, cat: (CAT_MAP_KO[x.category]||'etc'), tags: mapKoTags(x.tags||[]) }));
+      if(items.length===0) return;
+      state.items = items;
+      rebuildCategoriesFromItems();
+      state.selectedCats = new Set(state.categories.map(c=>c.id));
+      saveState();
+      renderSeasonal();
+      renderActiveCats();
+      renderActiveTags();
+      renderAllMenu();
+      setNearbyInfo();
     }catch{}
   }
 
@@ -723,7 +746,8 @@
   tryInitKakao();
   initWeather();
   // Apply external KO tags dataset after first paint
-  updateTagsFromExternal();
+  // Prefer full dataset if present; otherwise only tags update
+  applyExternalFullDataset().then(()=> updateTagsFromExternal());
 })();
 
 
