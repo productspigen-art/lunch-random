@@ -129,12 +129,6 @@
     try{ if(!els.seasonalList) return; const r=await fetch('seasonal_kr.json',{cache:'no-store'}); const data=await r.json(); const m=(new Date()).getMonth()+1; const list=(data&&data[String(m)])||[]; els.seasonalList.innerHTML=''; list.slice(0,6).forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); }); if(els.seasonalTitle) els.seasonalTitle.textContent=m+'월 제철음식'; }catch{}
   }
 
-  // 전체 메뉴 렌더
-  function renderAllMenu(){
-    if(!els.allMenuList) return; const listEl=els.allMenuList; listEl.innerHTML='';
-    const items=(state.items||[]).slice().sort((a,b)=>{ if(a.catLabel!==b.catLabel) return a.catLabel.localeCompare(b.catLabel); return a.name.localeCompare(b.name); });
-    items.forEach(it=>{ const row=document.createElement('div'); row.className='item'; const name=document.createElement('div'); name.textContent=it.name; const cat=document.createElement('div'); cat.className='muted small'; cat.style.marginLeft='6px'; cat.textContent=it.catLabel; row.appendChild(name); row.appendChild(cat); listEl.appendChild(row); });
-  }
 
   // 시트 열고 닫기 및 버튼 연결
   function openSheet(){ if(els.conditionSheet){ tempCond.tags=[...(state.activeTags||[])]; tempCond.cats=new Set(state.activeCats||[]); renderCondSheet(); els.conditionSheet.hidden=false; } }
