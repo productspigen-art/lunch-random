@@ -1,100 +1,4 @@
-﻿(() => {
-  const SCHEMA_VERSION = 10;
-
-  const DEFAULT_CATEGORIES = [
-    { id: 'korean', name: '한식' }, { id: 'japanese', name: '일식' }, { id: 'chinese', name: '중식' },
-    { id: 'western', name: '양식' }, { id: 'noodle', name: '면/분식' }, { id: 'rice', name: '밥/덮밥' },
-    { id: 'salad', name: '샐러드' }, { id: 'sandwich', name: '샌드위치' }, { id: 'fast', name: '패스트푸드' },
-    { id: 'vietnamese', name: '베트남' }, { id: 'thai', name: '태국' }, { id: 'indian', name: '인도/네팔' },
-    { id: 'mexican', name: '멕시칸' }, { id: 'brunch', name: '브런치' }, { id: 'med', name: '지중해' },
-    { id: 'seasia', name: '동남아' }, { id: 'dessert', name: '디저트' }, { id: 'etc', name: '기타' }
-  ];
-
-  // 풍부한 식사 위주 데이터 (음료 제외)
-  const DEFAULT_ITEMS = [];;
-
-  // New curated menu dataset (Korean labels) to replace legacy items on migration to v9
-  const NEW_MENU_RAW = [];;
-
-  const CAT_MAP_KO = {
-    '기타':'etc', '기타/간편식':'etc', '기타/디저트':'dessert', '디저트':'dessert',
-    '한식':'korean', '일식':'japanese', '중식':'chinese', '양식':'western',
-    '밥/덮밥':'rice', '밥/도시락':'rice',
-    '샐러드/건강식':'salad',
-    '샌드위치/브런치':'sandwich', '브런치/샌드위치':'sandwich',
-    '패스트푸드':'fast', '동남아식':'seasia', '베트남식':'vietnamese', '태국식':'thai',
-    '분식':'etc'
-  };
-  const TAG_MAP_KO = {
-    '간편하게':'quick','가볍게':'light','든든하게':'heavy','매운거':'spicy','국물':'soup','시원한거':'cold','건강하게':'light','즐겁게':null
-  };
-    // Category display labels (Korean)
-  const CATEGORY_LABELS = {
-    korean:'한식', japanese:'일식', chinese:'중식', western:'양식',
-    rice:'밥/덮밥', salad:'샐러드/건강식', sandwich:'샌드위치/브런치',
-    fast:'패스트푸드', seasia:'동남아식', vietnamese:'베트남식', thai:'태국식',
-    dessert:'디저트', etc:'기타', med:'지중해', brunch:'브런치', noodle:'면류', mexicain:'멕시칸', indian:'인도/네팔', seasia2:'동남아'
-  };
-  function rebuildCategoriesFromItems2(){
-    const present = new Set((state.items||[]).map(it=>it && it.cat).filter(Boolean));
-    const cats = Array.from(present).map(id => ({ id, name: CATEGORY_LABELS[id] || id }));
-    // keep a stable order by name
-    cats.sort((a,b)=> (a.name||'').localeCompare(b.name||''));
-    state.categories = cats;
-    const valid = new Set(cats.map(c=>c.id));
-    state.activeCats = new Set([...(state.activeCats||[])].filter(id=>valid.has(id)));
-    state.selectedCats = new Set([...(state.selectedCats||[])].filter(id=>valid.has(id)));
-  }function mapKoTags(tags){
-    const out=[]; const seen=new Set();
-    (tags||[]).forEach(t=>{ const id = TAG_MAP_KO[t]; if(id && !seen.has(id)){ seen.add(id); out.push(id); } });
-    return out;
-  }
-  function buildNewItems(){
-    return NEW_MENU_RAW.map(x=>({ name:x.name, cat: (CAT_MAP_KO[x.category]||'etc'), tags: mapKoTags(x.tags||[]) }));
-  }
-
-  // Update existing items' tags from external KO dataset file (same-origin)
-  async function updateTagsFromExternal(){
-    try{
-      const res = await fetch('menu_dataset_5tags.json?v=2025-01-15-1', { cache:'no-store' });
-      if(!res.ok) return;
-      const data = await res.json();
-      const map = new Map((Array.isArray(data)?data:[]).map(x=>[x.name, mapKoTags(x.tags||[])]));
-      if(map.size===0) return;
-      let changed=false;
-      state.items = (state.items||[]).map(it=>{
-        const t = map.get(it.name);
-        if(t && t.length){ if(!it.tags || it.tags.join(',')!==t.join(',')){ changed=true; return Object.assign({}, it, { tags:t }); } }
-        return it;
-      });
-      if(changed){ saveState(); renderActiveTags(); renderAllMenu(); }
-    }catch{}
-  }
-
-  // Replace entire items list from external full dataset (with categories)
-  async function applyExternalFullDataset(){
-    try{
-      const res = await fetch('menu_dataset_full_5tags_with_category.json?v=2025-01-15-1', { cache:'no-store' });
-      if(!res.ok) return;
-      const data = await res.json();
-      if(!Array.isArray(data) || data.length===0) return;
-      const items = data.map(x=>({ name: x.name, cat: (CAT_MAP_KO[x.category]||'etc'), tags: mapKoTags(x.tags||[]) }));
-      if(items.length===0) return;
-      state.items = items;
-      rebuildCategoriesFromItems2();
-      state.selectedCats = new Set(state.categories.map(c=>c.id));
-      saveState();
-      renderSeasonal();
-      renderActiveCats();
-      renderActiveTags();
-      renderAllMenu();
-      setNearbyInfo();
-    }catch{}
-  }
-
-  // Additional curated items to merge (dedup by name)
-  const EXTRA_ITEMS = [];;
-
+(() => {
   const els = {
     spinQuickBtn: document.getElementById('spinQuickBtn'),
     spinWithCondBtn: document.getElementById('spinWithCondBtn'),
@@ -109,506 +13,139 @@
     clearCatsBtn: document.getElementById('clearCatsBtn'),
     seasonalList: document.getElementById('seasonalList'),
     seasonalTitle: document.getElementById('seasonal-title'),
-    weatherInfo: document.getElementById('weatherInfo'),
-    nearbyInfo: document.getElementById('nearbyInfo'),
     activeCatLabel: document.getElementById('activeCatLabel'),
     activeCatBar: document.getElementById('activeCatBar'),
     activeTagLabel: document.getElementById('activeTagLabel'),
     activeTagBar: document.getElementById('activeTagBar'),
-    resultBlurb: document.getElementById('resultBlurb'),
-    flavorText: document.getElementById('flavorText'),
-    shareBtn: document.getElementById('shareBtn'),
     allMenuList: document.getElementById('allMenuList'),
   };
 
-  const storage = {
-    get(k,f){ try{ return JSON.parse(localStorage.getItem(k)) ?? f; }catch{ return f; } },
-    set(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
-  };
-
   const state = {
-    categories: storage.get('lm_categories', DEFAULT_CATEGORIES),
-    items: storage.get('lm_items', DEFAULT_ITEMS),
-    selectedCats: new Set(storage.get('lm_selectedCats', DEFAULT_CATEGORIES.map(c=>c.id))),
-    lastPick: null,
-    weather: { ready:false, summary:null, code:null, temp:null },
-    location: storage.get('lm_location', null),
-    nearby: storage.get('lm_nearby_presence', { ready:false, presentCats: [], radius: 1200, ts: 0 }),
+    items: [],            // { name, catLabel, tags[] }
+    categories: [],       // { id, name }
     activeCats: new Set(),
     activeTags: [],
+    allTags: []
   };
 
-  function saveState(){
-    storage.set('lm_categories', state.categories);
-    storage.set('lm_items', state.items);
-    storage.set('lm_selectedCats', Array.from(state.selectedCats));
-    storage.set('lm_location', state.location);
-    storage.set('lm_nearby_presence', state.nearby);
+  // 1) 메뉴 데이터 연결 (JSON에서만)
+  async function loadMenus(){
+    const res = await fetch('menu_dataset_full_5tags_with_category.json?v=2025-01-15-1', { cache:'no-store' });
+    const data = await res.json();
+    state.items = (Array.isArray(data)?data:[]).map(x=>({
+      name: String(x.name||'').trim(),
+      catLabel: String(x.category||'').trim(),
+      tags: Array.isArray(x.tags)? x.tags.map(t=>String(t).trim()) : []
+    }));
+    rebuildCategories();
+    buildAllTags();
+    state.activeCats = new Set(state.categories.map(c=>c.id));
+    renderActiveCats();
+    renderActiveTags();
+    renderAllMenu();
   }
 
-  function ensureDefaultsMerged(){
-    const byId=new Map(state.categories.map(c=>[c.id,c]));
-    DEFAULT_CATEGORIES.forEach(c=>{ if(!byId.has(c.id)) byId.set(c.id,c); });
-    state.categories=Array.from(byId.values());
-    const nameSet=new Set(state.items.map(i=>i.name));
-    const defaults = DEFAULT_ITEMS.concat(EXTRA_ITEMS);
-    const toAdd=defaults.filter(i=>!nameSet.has(i.name));
-    if(toAdd.length) state.items=state.items.concat(toAdd);
-  }
-
-  // Rebuild category list using only categories that appear in items
-  function rebuildCategoriesFromItems(){
-    const present = new Set((state.items||[]).map(it=>it && it.cat).filter(Boolean));
-    const byId = new Map(DEFAULT_CATEGORIES.map(c=>[c.id,c]));
-    const cats = Array.from(present).map(id => byId.get(id) || { id, name: id });
-    const order = new Map(DEFAULT_CATEGORIES.map((c,i)=>[c.id,i]));
-    cats.sort((a,b)=>{
-      const ai = order.has(a.id) ? order.get(a.id) : 999;
-      const bi = order.has(b.id) ? order.get(b.id) : 999;
-      if(ai!==bi) return ai-bi;
-      return (a.name||'').localeCompare(b.name||'');
-    });
-    state.categories = cats;
-    const valid = new Set(cats.map(c=>c.id));
+  // 4) 메뉴데이터를 바탕으로 카테고리 자동 구성
+  function rebuildCategories(){
+    const m = new Map();
+    (state.items||[]).forEach(it=>{ if(it.catLabel){ m.set(it.catLabel,{ id: it.catLabel, name: it.catLabel }); } });
+    state.categories = Array.from(m.values()).sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+    const valid = new Set(state.categories.map(c=>c.id));
     state.activeCats = new Set([...(state.activeCats||[])].filter(id=>valid.has(id)));
-    state.selectedCats = new Set([...(state.selectedCats||[])].filter(id=>valid.has(id)));
   }
 
-  function migrate(){
-    const ver = storage.get('lm_schema_version',0);
-    if(ver < 10){
-      state.items = [];
-      state.categories = [];
-      state.selectedCats = new Set();
-      storage.set('lm_schema_version',10);
-      saveState();
-    }
-  } else if(ver < SCHEMA_VERSION){
-      ensureDefaultsMerged(); storage.set('lm_schema_version',SCHEMA_VERSION); saveState();
-    }
+  function buildAllTags(){
+    const s=new Set();
+    (state.items||[]).forEach(it=> (it.tags||[]).forEach(t=>s.add(t)));
+    state.allTags = Array.from(s.values()).sort();
   }
 
-  // Helpers
-  function basePool(){
-    let pool = state.items.filter(it=>it.cat!=='dessert');
-    // respect previous selection only if not empty
-    const allSel = state.selectedCats.size===state.categories.length;
-    if(state.selectedCats.size>0 && !allSel){ pool = pool.filter(it=>state.selectedCats.has(it.cat)); }
-    return pool;
-  }
-
+  // 활성 카테고리/상황(태그) 렌더
   function renderActiveCats(){
     if(!els.activeCatBar) return;
-    const ids = Array.from(state.activeCats);
-    els.activeCatBar.innerHTML = '';
-    if(ids.length === 0){
-      els.activeCatBar.hidden = true;
-      if(els.activeCatLabel) els.activeCatLabel.hidden = true;
-      return;
-    }
-    const label = new Map(state.categories.map(c=>[c.id,c.name]));
+    els.activeCatBar.innerHTML='';
+    const ids = Array.from(state.activeCats||[]);
+    if(ids.length===0){ els.activeCatBar.hidden=true; if(els.activeCatLabel) els.activeCatLabel.hidden=true; return; }
     ids.forEach(id=>{
-      const b=document.createElement('button');
-      b.type='button'; b.className='chip'; b.textContent=label.get(id)||id;
+      const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=id;
       b.setAttribute('aria-selected','true');
       b.addEventListener('click', ()=>{ state.activeCats.delete(id); renderActiveCats(); });
       els.activeCatBar.appendChild(b);
     });
-    els.activeCatBar.hidden = false;
-    if(els.activeCatLabel) els.activeCatLabel.hidden = false;
+    els.activeCatBar.hidden=false; if(els.activeCatLabel) els.activeCatLabel.hidden=false;
   }
 
   function renderActiveTags(){
     if(!els.activeTagBar) return;
-    const arr = state.activeTags || [];
-    els.activeTagBar.innerHTML = '';
-    if(arr.length === 0){
-      els.activeTagBar.hidden = true;
-      if(els.activeTagLabel) els.activeTagLabel.hidden = true;
-      return;
-    }
-    const labelMap = { quick:'간편', light:'가벼움', heavy:'든든', spicy:'매운', soup:'국물', cold:'시원함' };
-    arr.forEach(id => {
-      const b = document.createElement('button');
-      b.type='button'; b.className='chip'; b.textContent = labelMap[id] || id;
-      b.setAttribute('aria-selected','true');
-      b.addEventListener('click', ()=>{
-        const i = state.activeTags.indexOf(id);
-        if(i>=0) state.activeTags.splice(i,1);
-        renderActiveTags();
-      });
+    els.activeTagBar.innerHTML='';
+    const arr = state.activeTags||[];
+    if(arr.length===0){ els.activeTagBar.hidden=true; if(els.activeTagLabel) els.activeTagLabel.hidden=true; return; }
+    arr.forEach(label=>{
+      const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=label; b.setAttribute('aria-selected','true');
+      b.addEventListener('click', ()=>{ const i=state.activeTags.indexOf(label); if(i>=0) state.activeTags.splice(i,1); renderActiveTags(); });
       els.activeTagBar.appendChild(b);
     });
-    els.activeTagBar.hidden = false;
-    if(els.activeTagLabel) els.activeTagLabel.hidden = false;
+    els.activeTagBar.hidden=false; if(els.activeTagLabel) els.activeTagLabel.hidden=false;
   }
 
-  function normalizeTags(raw){
-    if(!raw) return [];
-    const push=(arr)=>{
-      const seen=new Set();
-      arr.forEach(v=>{ const t=String(v).trim().toLowerCase(); if(t) seen.add(t); });
-      return Array.from(seen);
-    };
-    if(Array.isArray(raw)){
-      return push(raw);
-    }
-    if(typeof raw === 'string'){
-      return push(raw.split(/[,\s]+/));
-    }
-    return [];
-  }
-
-  // No share text field; share uses Web Share API directly.
-
-  function matches(it, cond){
-    if(!cond || !cond.length) return true;
-    const n=it.name, c=it.cat;
-    // Prefer explicit tags on items if present
-    if(it && Array.isArray(it.tags) && it.tags.length){
-      return cond.every(k => it.tags.includes(k));
-    }
-    const tests={
-      quick: ()=> c==='sandwich'||c==='fast'||/김밥|샌드위치|토스트|반미|버거|컵밥|오니기리/.test(n),
-      light: ()=> c==='salad'||c==='vietnamese'||/샐러드|포케|수프/.test(n),
-      heavy: ()=> ['rice','korean','chinese','western','fast'].includes(c)||/스테이크|치킨|피자|탕수육|찜닭/.test(n),
-      spicy: ()=> /매운|마라|짬뽕|불닭|낙지|김치|부대|떡볶이/.test(n),
-      soup:  ()=> /찌개|국|탕|라멘|우동|짬뽕|칼국수|수제비|수프/.test(n),
-      cold:  ()=> /냉면|냉우동|소바|샐러드/.test(n) || c==='salad',
-    };
-    return cond.every(k => tests[k]?tests[k]():true);
-  }
-
-  function pick(list){ return list[Math.floor(Math.random()*list.length)]; }
-
-  // Flavor text generator (per-dish with variety)
-  function flavorBlurbHTML(name){
-    const n = (name||'').trim();
-    // Per-dish lines (add as needed)
-    const L = {
-      '김치찌개':[ '보글보글 매콤 구수함이 코끝을 간질여요.', '밥 한 숟갈에 국물 촵— 오늘 컨디션 올라갑니다.' ],
-      '된장찌개':[ '구수한 된장향이 깊어요.', '두부·채소가 사각, 담백함이 입안 가득.' ],
-      '순두부찌개':[ '부들부들 순두부에 칼칼한 국물이 스며들어요.', '한 숟갈에 몸이 사르르 풀립니다.' ],
-      '부대찌개':[ '진득한 햄 풍미와 얼큰함의 조합.', '라면사리 넣고 후루룩— 행복 수치 급상승!' ],
-      '라멘':[ '진한 스프로 면발을 적시고, 차슈 한 점으로 마무리.', '후루룩— 깊은 감칠맛이 남아요.' ],
-      '우동':[ '탱글한 면발과 깔끔한 국물의 정석.', '어묵 향 솔솔, 마음까지 따뜻해져요.' ],
-      '냉면':[ '차가운 육수의 청량감이 확—', '겨자 톡, 식초 사르르. 시원함이 맴돌아요.' ],
-      '짜장면':[ '달큰 짜장과 면발이 착 달라붙어요.', '단무지 한 입, 비비는 순간 미소가 번집니다.' ],
-      '짬뽕':[ '불향 어린 얼큰 국물에 해물이 가득.', '한 모금에 “캬~”가 절로 나와요.' ],
-      '초밥':[ '밥알 탱글, 생선의 은은한 단맛.', '와사비 톡— 간장 촉— 산뜻하게 깔끔.' ],
-      '사시미(회)':[ '차갑고 탱글한 식감이 상쾌해요.', '바다의 단맛이 스르륵— 미끄러집니다.' ],
-      '돈카츠':[ '겉바속촉의 교과서.', '소스 촉— 두툼한 고기에서 육즙이 팡!' ],
-      '규동':[ '달큰짭짤 소고기와 양파의 조화.', '뜨끈한 밥과 쓱— 숟가락이 바빠져요.' ],
-      '가츠동':[ '부드러운 카츠+달걀의 촉촉함.', '양파 향이 스며든 포근한 한 끼.' ],
-      '사케동':[ '연어의 고소함이 부드럽게 퍼져요.', '유자·와사비 살짝— 산뜻 담백.' ],
-      '텐동':[ '바삭한 튀김과 단짠 소스의 묘미.', '밥과 함께 와앙— 만족감이 꽉 차요.' ],
-      '피자(페퍼로니)':[ '치즈가 쭈욱— 짭짤한 페퍼로니의 존재감.', '한 조각의 행복이 입안 가득.' ],
-      '파스타(까르보나라)':[ '크리미한 소스가 면을 감싸요.', '베이컨의 짭짤함과 후추 향의 마침표.' ],
-      '파스타(알리오올리오)':[ '올리브오일의 담백함, 마늘 향이 솔솔.', '심플하지만 계속 생각나는 맛.' ],
-      '카레라이스':[ '향신료의 포근함과 부드러운 소스.', '밥이 술술— 따뜻한 위로가 됩니다.' ],
-      '불고기':[ '달짝지근한 불향이 은은해요.', '참기름 고소함에 입꼬리가 올라갑니다.' ],
-      '제육볶음':[ '매콤달콤 밥도둑의 정석.', '상추에 싸서 촵— 기분까지 좋아져요.' ],
-      '쌀국수':[ '진한 육수에 허브의 산뜻함이 더해져요.', '면발 후루룩— 개운하게 마무리.' ],
-      '분짜':[ '숯불고기와 상큼 소스의 조화.', '허브와 함께 바삭함+상큼함 콤보.' ],
-      '반미':[ '바삭한 바게트에 촉촉한 속재료.', '고수 한 잎— 향긋함이 살아납니다.' ],
-    };
-    const fallback = (reA, reB)=>{
-      const a = reA || '한입에 퍼지는 풍미!';
-      const b = reB || '오늘도 든든하게 기분 업.';
-      return [a,b];
-    };
-    // If exact mapping exists, pick 2 lines randomly
-    if (L[n]){
-      const arr = L[n];
-      const pick2 = arr.length >= 2 ? arr.slice().sort(()=>Math.random()-0.5).slice(0,2) : arr;
-      return `<span class="blurb-title">맛 표현</span>${pick2.map(x=>`<p>${x}</p>`).join('')}`;
-    }
-    // Pattern-based fallback with variety
-    const is=(re)=>re.test(n);
-    let lines = [];
-    if(is(/라멘|우동|짬뽕|칼국수|수제비|국수|국밥|탕|찌개/)) lines = [ '뜨끈한 국물에 후루룩— 몸이 사르르.', '김 서리는 그릇에서 포근함이 올라와요.' ];
-    else if(is(/냉면|냉우동|소바|물냉|냉모밀/)) lines = [ '차가운 육수의 청량감! 시원하게 한 젓가락.', '겨자 톡, 식초 사르르— 머리까지 맑아져요.' ];
-    else if(is(/마라|불닭|매운|낙지|쭈꾸미|김치|칠리/)) lines = [ '얼얼한 매운맛이 스트레스를 싹—', '불맛과 함께 파워 충전 완료!' ];
-    else if(is(/돈까스|카츠|가츠|튀김|치킨|양념치킨|후라이드|깐풍기|깐쇼/)) lines = [ '겉바속촉! 바삭 소리에 고소함이 팡팡.', '단짠 소스까지 더해져 만족도 MAX.' ];
-    else if(is(/피자|리조또|스테이크|함박|감바스|파스타/)) lines = [ '버터향과 치즈의 진한 풍미가 입안을 감싸요.', '소스가 촉— 면/밥과 찰떡궁합.' ];
-    else if(is(/초밥|사시미|회덮밥|물회/)) lines = [ '바다의 산뜻한 단맛이 스르륵.', '탱글한 식감이 입안을 청량하게.' ];
-    else if(is(/카레|카레라이스|하이라이스/)) lines = [ '향신료의 따뜻함이 포근해요.', '부드러운 소스에 밥이 술술.' ];
-    else if(is(/덮밥|규동|가츠동|사케동|텐동|컵밥/)) lines = [ '따끈한 밥 위에 풍성한 토핑!', '비비는 순간 행복도가 올라갑니다.' ];
-    else if(is(/김밥|샌드위치|토스트|버거|반미|핫도그/)) lines = [ '한 입에 쏙— 간편하지만 든든.', '손안에서 느껴지는 포만감이 좋아요.' ];
-    else if(is(/샐러드|샐러드파스타|분짜|쌀국수/)) lines = [ '아삭아삭 산뜻한 밸런스.', '상큼 담백— 가볍게 에너지 충전.' ];
-    else lines = fallback();
-    return `<span class="blurb-title">맛 표현</span>${lines.map(x=>`<p>${x}</p>`).join('')}`;
-  }
-
-  // Render condition sheet chips
-  const COND_TAGS = [
-    { id:'quick', label:'간편' },
-    { id:'light', label:'가벼움' },
-    { id:'heavy', label:'든든' },
-    { id:'spicy', label:'매운' },
-    { id:'soup',  label:'국물' },
-    { id:'cold',  label:'시원함' },
-  ];
-  const tempCond = { tags: [], cats: new Set() };
+  // 조건 시트 렌더 (카테고리/태그를 메뉴 데이터로부터 생성)
+  const tempCond={ tags:[], cats:new Set() };
   function renderCondSheet(){
-    // categories (multi)
     if(els.condCatChips){
-      els.condCatChips.innerHTML = '';
-      state.categories.filter(c=>c.id!=='dessert').forEach(cat => {
+      els.condCatChips.innerHTML='';
+      state.categories.forEach(cat=>{
         const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=cat.name;
-        const sel = tempCond.cats.has(cat.id);
-        b.setAttribute('aria-selected', String(sel));
-        b.addEventListener('click', ()=>{ if(tempCond.cats.has(cat.id)) tempCond.cats.delete(cat.id); else tempCond.cats.add(cat.id); renderCondSheet(); });
+        const sel=tempCond.cats.has(cat.id); b.setAttribute('aria-selected', String(sel));
+        b.addEventListener('click', ()=>{ if(sel) tempCond.cats.delete(cat.id); else tempCond.cats.add(cat.id); renderCondSheet(); });
         els.condCatChips.appendChild(b);
       });
     }
-    // tags (multi)
     if(els.condTagChips){
       els.condTagChips.innerHTML='';
-      COND_TAGS.forEach(opt=>{
-        const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=opt.label;
-        const sel = tempCond.tags.includes(opt.id);
-        b.setAttribute('aria-selected', String(sel));
-        b.addEventListener('click', ()=>{ const i=tempCond.tags.indexOf(opt.id); if(i>=0) tempCond.tags.splice(i,1); else tempCond.tags.push(opt.id); renderCondSheet(); });
+      (state.allTags||[]).forEach(label=>{
+        const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=label;
+        const sel=tempCond.tags.includes(label); b.setAttribute('aria-selected', String(sel));
+        b.addEventListener('click', ()=>{ const i=tempCond.tags.indexOf(label); if(i>=0) tempCond.tags.splice(i,1); else tempCond.tags.push(label); renderCondSheet(); });
         els.condTagChips.appendChild(b);
       });
     }
   }
 
+  // 2) 룰렛 (카테고리=합집합, 태그=교집합)
   function spinOnce(cond){
-    // apply category filter (union across categories)
-    let items = basePool();
-    const useCats = (cond && cond.cats && cond.cats.size>0) ? cond.cats : (state.activeCats.size>0 ? state.activeCats : null);
-    if(useCats){ items = items.filter(it=>useCats.has(it.cat)); }
-    // apply situation/tag filter (intersection across tags)
-    const useTags = (cond && cond.tags && cond.tags.length>0) ? cond.tags : (state.activeTags || []);
-    let pool = items;
-    if(useTags && useTags.length){ pool = pool.filter(it=>matches(it, useTags)); }
-    // intersection of category and tags only; no fallback to broader pool
-    if(!pool.length){
-      if(els.resultSection){ els.resultSection.classList.remove('is-spinning'); }
-      if(els.result) els.result.textContent = '조건에 맞는 메뉴가 없어요';
-      if(els.flavorText) els.flavorText.innerHTML = '';
-      if(els.resultBlurb) els.resultBlurb.textContent = '';
-      return;
-    }
-    // simple flip + fast roll feel
-    if(els.resultSection){ els.resultSection.classList.add('is-spinning'); }
+    let pool = (state.items||[]).slice();
+    const useCats = (cond && cond.cats && cond.cats.size>0)? cond.cats : (state.activeCats.size>0? state.activeCats : null);
+    if(useCats){ pool = pool.filter(it=>useCats.has(it.catLabel)); }
+    const useTags = (cond && cond.tags && cond.tags.length>0)? cond.tags : (state.activeTags||[]);
+    if(useTags && useTags.length){ pool = pool.filter(it=> useTags.every(t => (it.tags||[]).includes(t))); }
+    if(!pool.length){ els.result.textContent='조건에 맞는 메뉴가 없어요'; return; }
     els.result?.classList.remove('flip-start'); void els.result?.offsetWidth; els.result?.classList.add('flip-start');
-    if(els.resultBlurb) els.resultBlurb.textContent = '';
-    if(els.flavorText) els.flavorText.innerHTML = '';
-    const tempTimer = setInterval(()=>{ const t = pick(pool); if(t) els.result.textContent = t.name; }, 70);
-    setTimeout(()=>{
-      clearInterval(tempTimer);
-      const final = pick(pool);
-      state.lastPick=final.name; saveState(); els.result.textContent = final.name;
-      if(els.flavorText) els.flavorText.innerHTML = '';
-      else if(els.resultBlurb) els.resultBlurb.textContent = '';
-      if(els.resultSection){ els.resultSection.classList.remove('is-spinning'); }
-    }, 900);
+    const tmp=setInterval(()=>{ const t=pool[Math.floor(Math.random()*pool.length)]; els.result.textContent=t.name; },70);
+    setTimeout(()=>{ clearInterval(tmp); const final=pool[Math.floor(Math.random()*pool.length)]; els.result.textContent=final.name; },900);
   }
 
-  // Seasonal\n  function renderSeasonal(){\n    if(!els.seasonalList) return;\n    const m = (new Date()).getMonth()+1;\n    let combos = [];\n    if([12,1,2].includes(m)) combos = [['soup','heavy'], ['soup']];\n    else if([3].includes(m)) combos = [['light','soup'], ['light']];\n    else if([4,5].includes(m)) combos = [['light'], ['light','soup']];\n    else if([6,7,8].includes(m)) combos = [['cold','light'], ['cold'], ['light']];\n    else if([9].includes(m)) combos = [['heavy'], ['soup','heavy']];\n    else if([10].includes(m)) combos = [['heavy','soup'], ['heavy']];\n    else if([11].includes(m)) combos = [['soup','heavy'], ['soup']];\n\n    const seen = new Set();\n    let pool = [];\n    const items = (state.items||[]);\n    combos.forEach(tags => {\n      items.forEach(it => {\n        if(seen.has(it.name)) return;\n        if(matches(it, tags)) { seen.add(it.name); pool.push(it.name); }\n      });\n    });\n    if(pool.length===0){\n      const alt = (m>=6&&m<=8) ? ['light'] : ['soup'];\n      items.forEach(it=>{ if(!seen.has(it.name) && matches(it, alt)) { seen.add(it.name); pool.push(it.name); } });\n    }\n    for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=pool[i]; pool[i]=pool[j]; pool[j]=t; }\n    const list = pool.slice(0,6);\n    els.seasonalList.innerHTML = '';\n    list.forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });\n    if(els.seasonalTitle) els.seasonalTitle.textContent = m + '월 제철음식 추천';\n  }\n  // Render all menu items in bottom list\n  function renderAllMenu(){(){
-    if(!els.allMenuList) return;
-    return renderSeasonalFromDataset();
-    const listEl = els.allMenuList;
-    listEl.innerHTML = '';
-    const label = new Map(state.categories.map(c=>[c.id,c.name]));
-    const items = (state.items || []).slice().sort((a,b)=>{
-      const ac = (label.get(a.cat)||a.cat||'');
-      const bc = (label.get(b.cat)||b.cat||'');
-      if(ac !== bc) return ac.localeCompare(bc);
-      return (a.name||'').localeCompare(b.name||'');
-    });
-    items.forEach(it=>{
-      const row = document.createElement('div');
-      row.className = 'item';
-      const name = document.createElement('div');
-      name.textContent = it.name;
-      const cat = document.createElement('div');
-      cat.className = 'muted small';
-      cat.style.marginLeft = '6px';
-      cat.textContent = label.get(it.cat) || it.cat;
-      row.appendChild(name);
-      row.appendChild(cat);
-      listEl.appendChild(row);
-    });
-  }
-  // Nearby + Weather (for display only)
-  function setNearbyInfo(){ if(!els.nearbyInfo) return; if(state.nearby&&state.nearby.ready&&state.nearby.presentCats.length){ const label=new Map(state.categories.map(c=>[c.id,c.name])); const labs=state.nearby.presentCats.map(id=>label.get(id)||id).slice(0,6); els.nearbyInfo.textContent=`근처 감지: ${labs.join(' · ')}`; } else els.nearbyInfo.textContent=''; }
-  function mapWeather(code,temp){ let cond='알 수 없음', emoji='🌤️'; const c=Number(code); if(c===0){cond='맑음';emoji='☀️';} else if([1,2,3].includes(c)){cond='구름 조금';emoji='⛅';} else if([45,48].includes(c)){cond='안개';emoji='🌫️';} else if([51,53,55,56,57].includes(c)){cond='이슬비';emoji='🌦️';} else if([61,63,65,66,67,80,81,82].includes(c)){cond='비';emoji='🌧️';} else if([71,73,75,77,85,86].includes(c)){cond='눈';emoji='❄️';} else if([95,96,97].includes(c)){cond='뇌우';emoji='⛈️';} const t=(temp!=null&&Number.isFinite(temp))?`${Math.round(temp)}°C`:''; return { text: t?`${cond} · ${t}`:cond, emoji } }
-  function catCuisineMap(){ return { korean:['korean','korea'], japanese:['japanese','sushi','ramen','udon','soba'], chinese:['chinese'], western:['italian','french','steak_house','european','american'], noodle:['noodle','ramen','udon','soba'], salad:['salad','healthy'], sandwich:['sandwich','bagel','deli'], fast:['burger','pizza','fried_chicken'], vietnamese:['vietnamese','pho','banh_mi'], thai:['thai'], indian:['indian','nepalese'], mexican:['mexican','tacos','burrito'], brunch:['breakfast','brunch','cafe'], med:['mediterranean','turkish','greek','middle_eastern','kebab','shawarma'], seasia:['indonesian','malaysian','singaporean'], dessert:['ice_cream','cake','waffle','dessert','bakery'], etc:[] } }
-  async function initNearbyPresence(lat,lng,radius=1200){ try{ const base="[out:json][timeout:12];"+"(node[\"amenity\"~\"restaurant|fast_food|cafe\"](around:"+radius+","+lat+","+lng+");"+"way[\"amenity\"~\"restaurant|fast_food|cafe\"](around:"+radius+","+lat+","+lng+");"+"relation[\"amenity\"~\"restaurant|fast_food|cafe\"](around:"+radius+","+lat+","+lng+"););"+"out tags center;"; const urls=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter']; let ok=false,data=null; for(const u of urls){ try{ const r=await fetch(u+'?data='+encodeURIComponent(base)); if(r.ok){ data=await r.json(); ok=true; break;} }catch{} } if(!ok) throw 0; const cuisines=new Set(); if(Array.isArray(data.elements)){ for(const el of data.elements){ const t=el.tags||{}; const c=(t.cuisine||'').toLowerCase(); if(!c) continue; c.split(';').map(s=>s.trim()).filter(Boolean).forEach(v=>cuisines.add(v)); } } const map=catCuisineMap(); const presentCats=Object.keys(map).filter(cat=>map[cat].some(tag=>cuisines.has(tag))); state.nearby={ready:true,presentCats,radius,ts:Date.now(),lat,lng}; saveState(); setNearbyInfo(); }catch{ state.nearby={ready:false,presentCats:[],radius,ts:Date.now(),lat,lng}; saveState(); setNearbyInfo(); } }
-  async function initWeather(){ try{ if(!navigator.geolocation) return; const pos=await new Promise((res,rej)=>{ navigator.geolocation.getCurrentPosition(res,rej,{enableHighAccuracy:true,timeout:8000}); }); const {latitude:lat,longitude:lng}=pos.coords; state.location={lat,lng,ts:Date.now()}; saveState(); initNearbyPresence(lat,lng).catch(()=>{}); const url=new URL('https://api.open-meteo.com/v1/forecast'); url.searchParams.set('latitude',lat); url.searchParams.set('longitude',lng); url.searchParams.set('current_weather','true'); url.searchParams.set('timezone','auto'); const r=await fetch(url.toString()); if(!r.ok) throw 0; const data=await r.json(); let code=null,temp=null; if(data.current_weather){ code=data.current_weather.weathercode; temp=data.current_weather.temperature; } const info=mapWeather(code,temp); state.weather={ready:true,summary:info.text,code,temp}; if(els.weatherInfo) els.weatherInfo.textContent=`현재 날씨: ${info.emoji} ${info.text}`; }catch{ if(els.weatherInfo) els.weatherInfo.textContent=''; } }
-
-  // Share helpers
-  function tryInitKakao(){
-    try{
-      if(typeof window !== 'undefined' && window.Kakao){
-        const meta = document.querySelector('meta[name="kakao-app-key"]');
-        const key = (meta && (meta.content||'').trim()) || localStorage.getItem('lm_kakao_app_key') || '';
-        if(!window.Kakao.isInitialized() && key){ window.Kakao.init(key); }
-      }
-    }catch{}
-  }
-  function getSharePayload(){
-    const name = (state.lastPick || '').trim() || (els.result && (els.result.textContent||'').trim()) || '';
-    const url = (typeof location !== 'undefined' && location.href) ? location.href : '';
-    const text = name ? `오늘 점심 추천: ${name}` : '룰렛을 돌려 오늘의 점심을 골라보세요!';
-    const title = '점심 추천';
-    return { name, text, url, title };
+  // 3) 제철음식 데이터 연결 (seasonal_kr.json)
+  async function renderSeasonal(){
+    try{ if(!els.seasonalList) return; const r=await fetch('seasonal_kr.json',{cache:'no-store'}); const data=await r.json(); const m=(new Date()).getMonth()+1; const list=(data&&data[String(m)])||[]; els.seasonalList.innerHTML=''; list.slice(0,6).forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); }); if(els.seasonalTitle) els.seasonalTitle.textContent=m+'월 제철음식'; }catch{}
   }
 
-  // Events
-  if(els.spinQuickBtn) els.spinQuickBtn.addEventListener('click', ()=> spinOnce({tags:[],cats:new Set()}));
-  function openSheet(){ if(els.conditionSheet){ tempCond.tags=[...(state.activeTags||[])]; tempCond.cats=new Set(state.activeCats); renderCondSheet(); els.conditionSheet.hidden=false; } }
+  // 전체 메뉴 렌더
+  function renderAllMenu(){
+    if(!els.allMenuList) return; const listEl=els.allMenuList; listEl.innerHTML='';
+    const items=(state.items||[]).slice().sort((a,b)=>{ if(a.catLabel!==b.catLabel) return a.catLabel.localeCompare(b.catLabel); return a.name.localeCompare(b.name); });
+    items.forEach(it=>{ const row=document.createElement('div'); row.className='item'; const name=document.createElement('div'); name.textContent=it.name; const cat=document.createElement('div'); cat.className='muted small'; cat.style.marginLeft='6px'; cat.textContent=it.catLabel; row.appendChild(name); row.appendChild(cat); listEl.appendChild(row); });
+  }
+
+  // 시트 열고 닫기 및 버튼 연결
+  function openSheet(){ if(els.conditionSheet){ tempCond.tags=[...(state.activeTags||[])]; tempCond.cats=new Set(state.activeCats||[]); renderCondSheet(); els.conditionSheet.hidden=false; } }
   function closeSheet(){ if(els.conditionSheet){ els.conditionSheet.hidden=true; } }
+  if(els.spinQuickBtn) els.spinQuickBtn.addEventListener('click', ()=> spinOnce({ tags:[...(state.activeTags||[])], cats:new Set(state.activeCats||[]) }));
   if(els.spinWithCondBtn) els.spinWithCondBtn.addEventListener('click', openSheet);
+  if(els.applyCondBtn) els.applyCondBtn.addEventListener('click', ()=>{ state.activeCats=new Set(tempCond.cats); state.activeTags=[...tempCond.tags]; renderActiveCats(); renderActiveTags(); closeSheet(); spinOnce({ tags:[...tempCond.tags], cats:new Set(tempCond.cats) }); });
   if(els.closeSheetBtn) els.closeSheetBtn.addEventListener('click', closeSheet);
-  if(els.applyCondBtn) els.applyCondBtn.addEventListener('click', ()=>{ state.activeCats = new Set(tempCond.cats); state.activeTags = [...tempCond.tags]; renderActiveCats(); renderActiveTags(); closeSheet(); spinOnce({ tags:[...tempCond.tags], cats:new Set(tempCond.cats) }); });
-  if(els.selectAllCatsBtn) els.selectAllCatsBtn.addEventListener('click', ()=>{ tempCond.cats = new Set(state.categories.filter(c=>c.id!=='dessert').map(c=>c.id)); renderCondSheet(); });
-  if(els.clearCatsBtn) els.clearCatsBtn.addEventListener('click', ()=>{ tempCond.cats = new Set(); renderCondSheet(); });
+  if(els.selectAllCatsBtn) els.selectAllCatsBtn.addEventListener('click', ()=>{ tempCond.cats=new Set((state.categories||[]).map(c=>c.id)); renderCondSheet(); });
+  if(els.clearCatsBtn) els.clearCatsBtn.addEventListener('click', ()=>{ tempCond.cats=new Set(); renderCondSheet(); });
 
-  if(els.shareBtn){
-    els.shareBtn.addEventListener('click', async ()=>{
-      const pick = (state.lastPick || '').trim() || (els.result && (els.result.textContent||'').trim()) || '';
-      const text = pick ? `오늘 점심 추천: ${pick}` : '룰렛을 돌려 오늘의 점심을 골라보세요!';
-      const url = (typeof location !== 'undefined' && location.href) ? location.href : '';
-      // Only copy: current menu + page link
-      try{
-        const payload = [text, url].filter(Boolean).join('\n');
-        if(navigator.clipboard && navigator.clipboard.writeText){
-          await navigator.clipboard.writeText(payload);
-          els.shareBtn.textContent = '복사됨!';
-          setTimeout(()=>{ els.shareBtn.textContent='결과 복사하기'; }, 1200);
-        } else {
-          const t=document.createElement('textarea'); t.value=payload; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
-          els.shareBtn.textContent = '복사됨!';
-          setTimeout(()=>{ els.shareBtn.textContent='결과 복사하기'; }, 1200);
-        }
-      }catch{}
-    });
-  }
-
-  if(els.kakaoShareBtn){
-    els.kakaoShareBtn.addEventListener('click', async ()=>{
-      tryInitKakao();
-      const p = getSharePayload();
-      try{
-        if(window.Kakao && window.Kakao.isInitialized && window.Kakao.isInitialized()){
-          window.Kakao.Share.sendDefault({
-            objectType: 'feed',
-            content: { title: p.title, description: p.text, imageUrl: p.url, link: { mobileWebUrl: p.url, webUrl: p.url } }
-          });
-        }else{
-          alert('카카오톡 공유를 사용하려면 Kakao 앱 키 설정이 필요합니다. meta[kakao-app-key] 또는 localStorage "lm_kakao_app_key"에 키를 설정해 주세요.');
-        }
-      }catch{
-        alert('카카오톡 공유 중 문제가 발생했어요. 링크 복사로 공유해 주세요.');
-      }
-    });
-  }
-
-  if(els.copyShareBtn){
-    els.copyShareBtn.addEventListener('click', async ()=>{
-      const p = getSharePayload();
-      const payload = [p.text, p.url].filter(Boolean).join('\n');
-      try{
-        if(navigator.clipboard && navigator.clipboard.writeText){
-          await navigator.clipboard.writeText(payload);
-          els.copyShareBtn.textContent = '복사됨!';
-          setTimeout(()=>{ els.copyShareBtn.textContent='링크 복사'; }, 1200);
-        }else{
-          const t=document.createElement('textarea'); t.value=payload; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
-          els.copyShareBtn.textContent = '복사됨!';
-          setTimeout(()=>{ els.copyShareBtn.textContent='링크 복사'; }, 1200);
-        }
-      }catch{
-        alert('복사에 실패했어요. 수동으로 복사해 주세요.');
-      }
-    });
-  }
-
-  // Condition sheet open/close helpers
-  function openSheet(){
-    if(els.conditionSheet){
-      tempCond.tags = [...(state.activeTags||[])];
-      tempCond.cats = new Set(state.activeCats);
-      renderCondSheet();
-      els.conditionSheet.hidden = false;
-    }
-  }
-  function closeSheet(){ if(els.conditionSheet){ els.conditionSheet.hidden = true; } }
-
-  // Wire up main actions
-  if(els.spinQuickBtn){
-    els.spinQuickBtn.addEventListener('click', ()=>{ spinOnce(); });
-  }
-  if(els.spinWithCondBtn){
-    els.spinWithCondBtn.addEventListener('click', openSheet);
-  }
-  if(els.applyCondBtn){
-    els.applyCondBtn.addEventListener('click', ()=>{
-      state.activeCats = new Set(tempCond.cats);
-      state.activeTags = [...tempCond.tags];
-      renderActiveCats();
-      renderActiveTags();
-      closeSheet();
-      spinOnce({ tags:[...tempCond.tags], cats:new Set(tempCond.cats) });
-    });
-  }
-  if(els.closeSheetBtn){
-    els.closeSheetBtn.addEventListener('click', closeSheet);
-  }
-  // Seasonal hardcoded dataset (no network)
-  const SEASONAL_KR = {
-    1:[ '굴','방어','딸기','대파','우엉','무' ],
-    2:[ '굴','대하','한라봉','시금치','미나리','무' ],
-    3:[ '주꾸미','도다리','쑥','냉이','두릅','딸기' ],
-    4:[ '주꾸미','멍게','참나물','봄동','두릅','전복' ],
-    5:[ '병어','복분자','완두콩','죽순','참외','전어' ],
-    6:[ '참외','옥수수','오이','토마토','자두','민어' ],
-    7:[ '수박','복숭아','전복','옥수수','가지','토마토' ],
-    8:[ '전어','무화과','포도','부추','오이','낙지' ],
-    9:[ '전어','대하','사과','배','고구마','무화과' ],
-    10:[ '대하','꽃게','전어','버섯','배추','배' ],
-    11:[ '굴','방어','배추','무','유자','고구마' ],
-    12:[ '굴','방어','과메기','시금치','배추','유자' ]
-  };
-  async function renderSeasonalFromDataset(){
-    if(!els.seasonalList) return;
-    const m = (new Date()).getMonth()+1;
-    const list = SEASONAL_KR[m] || [];
-    els.seasonalList.innerHTML = '';
-    (list.slice(0,6)).forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
-    if(els.seasonalTitle) els.seasonalTitle.textContent = m + '월 제철음식';
-  }
-
-  // Init
-  migrate();
-  // 항상 초기화된 상태로 시작
-  state.selectedCats = new Set(state.categories.map(c=>c.id)); saveState();
-  renderSeasonalFromDataset ? renderSeasonalFromDataset() : renderSeasonal();
-  // Derive categories from current items and reset selection
-  rebuildCategoriesFromItems2();
-  catch {}
-  }
-  state.selectedCats = new Set(state.categories.map(c=>c.id)); saveState();
-  renderActiveCats();
-  renderActiveTags();
-  renderAllMenu();
-  setNearbyInfo();
-  tryInitKakao();
-  initWeather();
-  // Apply external KO tags dataset after first paint
-  // Prefer full dataset if present; otherwise only tags update
-  applyExternalFullDataset().then(()=> updateTagsFromExternal());
-}
+  // 초기화
+  (async function init(){ await loadMenus(); await renderSeasonal(); })();
 })();
-
-
-
-
-
-
-
