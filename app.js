@@ -716,27 +716,28 @@
     });
   }
 
-  // Seasonal dataset fetcher (real info)
+  // Seasonal hardcoded dataset (no network)
+  const SEASONAL_KR = {
+    1:[ '굴','방어','딸기','대파','우엉','무' ],
+    2:[ '굴','대하','한라봉','시금치','미나리','무' ],
+    3:[ '주꾸미','도다리','쑥','냉이','두릅','딸기' ],
+    4:[ '주꾸미','멍게','참나물','봄동','두릅','전복' ],
+    5:[ '병어','복분자','완두콩','죽순','참외','전어' ],
+    6:[ '참외','옥수수','오이','토마토','자두','민어' ],
+    7:[ '수박','복숭아','전복','옥수수','가지','토마토' ],
+    8:[ '전어','무화과','포도','부추','오이','낙지' ],
+    9:[ '전어','대하','사과','배','고구마','무화과' ],
+    10:[ '대하','꽃게','전어','버섯','배추','배' ],
+    11:[ '굴','방어','배추','무','유자','고구마' ],
+    12:[ '굴','방어','과메기','시금치','배추','유자' ]
+  };
   async function renderSeasonalFromDataset(){
-    try{
-      if(!els.seasonalList) return;
-      const m = (new Date()).getMonth()+1;
-      const url = 'seasonal_kr.json?v=2025-01-15-1';
-      const cacheKey = 'lm_seasonal_'+m;
-      let list = [];
-      try{
-        const cached = JSON.parse(localStorage.getItem(cacheKey)||'null');
-        if(cached && Array.isArray(cached) && cached.length) list = cached;
-      }catch{}
-      if(list.length===0){
-        const r = await fetch(url, { cache:'no-store' });
-        if(r.ok){ const data = await r.json(); list = (data && data[String(m)]) || []; }
-      }
-      els.seasonalList.innerHTML = '';
-      (list.slice(0,6)).forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
-      try{ localStorage.setItem(cacheKey, JSON.stringify(list)); }catch{}
-      if(els.seasonalTitle) els.seasonalTitle.textContent = m + '월 제철음식';
-    }catch{}
+    if(!els.seasonalList) return;
+    const m = (new Date()).getMonth()+1;
+    const list = SEASONAL_KR[m] || [];
+    els.seasonalList.innerHTML = '';
+    (list.slice(0,6)).forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
+    if(els.seasonalTitle) els.seasonalTitle.textContent = m + '월 제철음식';
   }
 
   // Init
