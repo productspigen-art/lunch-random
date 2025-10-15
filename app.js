@@ -181,6 +181,24 @@
     if(toAdd.length) state.items=state.items.concat(toAdd);
   }
 
+  // Rebuild category list using only categories that appear in items
+  function rebuildCategoriesFromItems(){
+    const present = new Set((state.items||[]).map(it=>it && it.cat).filter(Boolean));
+    const byId = new Map(DEFAULT_CATEGORIES.map(c=>[c.id,c]));
+    const cats = Array.from(present).map(id => byId.get(id) || { id, name: id });
+    const order = new Map(DEFAULT_CATEGORIES.map((c,i)=>[c.id,i]));
+    cats.sort((a,b)=>{
+      const ai = order.has(a.id) ? order.get(a.id) : 999;
+      const bi = order.has(b.id) ? order.get(b.id) : 999;
+      if(ai!==bi) return ai-bi;
+      return (a.name||'').localeCompare(b.name||'');
+    });
+    state.categories = cats;
+    const valid = new Set(cats.map(c=>c.id));
+    state.activeCats = new Set([...(state.activeCats||[])].filter(id=>valid.has(id)));
+    state.selectedCats = new Set([...(state.selectedCats||[])].filter(id=>valid.has(id)));
+  }
+
   function migrate(){
     const ver = storage.get('lm_schema_version',0);
     if(ver < SCHEMA_VERSION){ ensureDefaultsMerged(); storage.set('lm_schema_version',SCHEMA_VERSION); saveState(); }
@@ -543,6 +561,9 @@
   // 항상 초기화된 상태로 시작
   state.selectedCats = new Set(state.categories.map(c=>c.id)); saveState();
   renderSeasonal();
+  // Derive categories from current items and reset selection
+  rebuildCategoriesFromItems();
+  state.selectedCats = new Set(state.categories.map(c=>c.id)); saveState();
   renderActiveCats();
   renderActiveTags();
   renderAllMenu();
