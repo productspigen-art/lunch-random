@@ -50,7 +50,8 @@ body{
 }
 .chip[aria-selected="true"]{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 2px 8px rgba(232,90,44,.25)}
 
-.cta-row{display:flex;gap:10px;position:sticky;top:0;padding:8px 0;background:linear-gradient(var(--bg), var(--bg))}
+.cta-row{display:flex;gap:10px;justify-content:center;padding:12px 0}
+.cta-row .primary-btn{flex:0 0 auto}
 .primary-btn,.secondary-btn,.ghost-btn,.link-btn{
   border:none;outline:none;cursor:pointer;
   border-radius:12px; font-weight:600;

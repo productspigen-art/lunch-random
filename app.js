@@ -43,7 +43,8 @@
         }));
         rebuildCategories();
         buildAllTags();
-        state.activeCats = new Set(state.categories.map(c=>c.id));
+        // 기본: 아무 필터도 선택되지 않게 유지
+        state.activeCats = new Set();
         renderActiveCats();
         renderActiveTags();
       }catch(e){
@@ -257,6 +258,17 @@
     });
 
     // 7) 초기화
+    // CTA를 결과 카드 아래로 이동
+    (function moveCtas(){
+      try{
+        const cta = document.querySelector('.cta-row');
+        const resultSection = document.getElementById('resultSection');
+        if(cta && resultSection){
+          resultSection.insertAdjacentElement('afterend', cta);
+        }
+      }catch{}
+    })();
+
     (async function init(){
       await loadMenus();
       await renderSeasonal();
