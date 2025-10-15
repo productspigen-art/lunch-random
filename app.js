@@ -1,5 +1,5 @@
 ﻿(() => {
-  const SCHEMA_VERSION = 8;
+  const SCHEMA_VERSION = 9;
 
   const DEFAULT_CATEGORIES = [
     { id: 'korean', name: '한식' }, { id: 'japanese', name: '일식' }, { id: 'chinese', name: '중식' },
@@ -55,6 +55,128 @@
     // 도시락/세트
     {name:'도시락',cat:'etc'},{name:'한식도시락',cat:'etc'},{name:'분식세트',cat:'etc'},{name:'돈까스정식',cat:'japanese'},{name:'초밥세트',cat:'japanese'},
   ];
+
+  // New curated menu dataset (Korean labels) to replace legacy items on migration to v9
+  const NEW_MENU_RAW = [
+    { name: '도시락', category: '기타', tags: ['간편하게','든든하게'] },
+    { name: '한식도시락', category: '한식', tags: ['간편하게','든든하게'] },
+    { name: '나시고렝', category: '동남아식', tags: ['간편하게','든든하게'] },
+    { name: '락사', category: '동남아식', tags: ['국물','매운거'] },
+    { name: '바쿠테', category: '동남아식', tags: ['국물','든든하게'] },
+    { name: '사테', category: '동남아식', tags: ['가볍게','든든하게'] },
+    { name: '싱가포르치킨라이스', category: '동남아식', tags: ['가볍게','든든하게'] },
+    { name: '간장계란밥', category: '밥/덮밥', tags: ['간편하게','가볍게'] },
+    { name: '규동', category: '일식', tags: ['든든하게','간편하게'] },
+    { name: '김치볶음밥', category: '밥/덮밥', tags: ['간편하게','매운거','든든하게'] },
+    { name: '불고기덮밥', category: '밥/덮밥', tags: ['든든하게'] },
+    { name: '스팸마요덮밥', category: '밥/덮밥', tags: ['간편하게','든든하게'] },
+    { name: '제육덮밥', category: '밥/덮밥', tags: ['매운거','든든하게'] },
+    { name: '참치마요덮밥', category: '밥/덮밥', tags: ['간편하게','가볍게'] },
+    { name: '카레라이스', category: '밥/덮밥', tags: ['간편하게','든든하게'] },
+    { name: '컵밥', category: '밥/덮밥', tags: ['간편하게','가볍게'] },
+    { name: '반미', category: '베트남식', tags: ['간편하게','가볍게'] },
+    { name: '분짜', category: '베트남식', tags: ['가볍게','건강하게'] },
+    { name: '쌀국수', category: '베트남식', tags: ['국물','가볍게'] },
+    { name: '김밥', category: '분식', tags: ['가볍게','간편하게'] },
+    { name: '돈까스김밥', category: '분식', tags: ['가볍게','든든하게'] },
+    { name: '베이글샌드위치', category: '샌드위치/브런치', tags: ['가볍게','간편하게'] },
+    { name: '샌드위치', category: '샌드위치/브런치', tags: ['가볍게','건강하게'] },
+    { name: '참치김밥', category: '분식', tags: ['가볍게'] },
+    { name: '토스트', category: '샌드위치/브런치', tags: ['가볍게','간편하게'] },
+    { name: '파니니', category: '샌드위치/브런치', tags: ['가볍게'] },
+    { name: '핫도그', category: '패스트푸드', tags: ['가볍게','즐겁게'] },
+    { name: '감바스', category: '양식', tags: ['즐겁게','든든하게'] },
+    { name: '리조또(버섯)', category: '양식', tags: ['든든하게','건강하게'] },
+    { name: '리조또(크림)', category: '양식', tags: ['간편하게','든든하게'] },
+    { name: '리조또(토마토)', category: '양식', tags: ['간편하게','든든하게'] },
+    { name: '샐러드파스타', category: '양식', tags: ['건강하게','가볍게'] },
+    { name: '스테이크', category: '양식', tags: ['든든하게','즐겁게'] },
+    { name: '치킨스테이크', category: '양식', tags: ['든든하게'] },
+    { name: '파스타(까르보나라)', category: '양식', tags: ['든든하게'] },
+    { name: '파스타(로제)', category: '양식', tags: ['든든하게','매운거'] },
+    { name: '파스타(봉골레)', category: '양식', tags: ['든든하게'] },
+    { name: '파스타(알리오올리오)', category: '양식', tags: ['든든하게','가볍게'] },
+    { name: '함박스테이크', category: '양식', tags: ['든든하게','즐겁게'] },
+    { name: '가츠동', category: '일식', tags: ['든든하게'] },
+    { name: '규카츠', category: '일식', tags: ['든든하게'] },
+    { name: '냉우동', category: '일식', tags: ['시원한거','가볍게'] },
+    { name: '돈까스덮밥', category: '일식', tags: ['든든하게'] },
+    { name: '돈까스정식', category: '일식', tags: ['든든하게'] },
+    { name: '돈카츠', category: '일식', tags: ['든든하게'] },
+    { name: '라멘', category: '일식', tags: ['국물','든든하게'] },
+    { name: '사시미(회)', category: '일식', tags: ['시원한거','가볍게'] },
+    { name: '사케동', category: '일식', tags: ['건강하게','시원한거'] },
+    { name: '샤브샤브', category: '일식', tags: ['건강하게','국물'] },
+    { name: '야끼니쿠', category: '일식', tags: ['든든하게','즐겁게'] },
+    { name: '오므라이스', category: '일식', tags: ['간편하게','든든하게'] },
+    { name: '초밥', category: '일식', tags: ['시원한거','가볍게'] },
+    { name: '텐동', category: '일식', tags: ['든든하게'] },
+    { name: '고추잡채', category: '중식', tags: ['매운거','든든하게'] },
+    { name: '깐풍기', category: '중식', tags: ['매운거','즐겁게'] },
+    { name: '꿔바로우', category: '중식', tags: ['즐겁게','든든하게'] },
+    { name: '마라샹궈', category: '중식', tags: ['매운거','든든하게'] },
+    { name: '마라탕', category: '중식', tags: ['매운거','국물'] },
+    { name: '마파두부', category: '중식', tags: ['매운거','든든하게'] },
+    { name: '새우볶음밥', category: '중식', tags: ['간편하게'] },
+    { name: '짜장면', category: '중식', tags: ['든든하게','즐겁게'] },
+    { name: '짬뽕', category: '중식', tags: ['국물','매운거'] },
+    { name: '탕수육', category: '중식', tags: ['즐겁게','든든하게'] },
+    { name: '똠얌꿍', category: '태국식', tags: ['매운거','국물'] },
+    { name: '카오만까이', category: '태국식', tags: ['가볍게','든든하게'] },
+    { name: '팟타이', category: '태국식', tags: ['가볍게','든든하게'] },
+    { name: '양념치킨', category: '패스트푸드', tags: ['매운거','즐겁게'] },
+    { name: '후라이드치킨', category: '패스트푸드', tags: ['즐겁게','든든하게'] },
+    { name: '피자(마르게리타)', category: '패스트푸드', tags: ['즐겁게','든든하게'] },
+    { name: '피자(페퍼로니)', category: '패스트푸드', tags: ['즐겁게'] },
+    { name: '햄버거(치킨버거)', category: '패스트푸드', tags: ['든든하게','즐겁게'] },
+    { name: '불고기', category: '한식', tags: ['든든하게'] },
+    { name: '삼겹살', category: '한식', tags: ['든든하게','즐겁게'] },
+    { name: '감자탕', category: '한식', tags: ['국물','든든하게'] },
+    { name: '김치찌개', category: '한식', tags: ['매운거','국물'] },
+    { name: '부대찌개', category: '한식', tags: ['국물','매운거'] },
+    { name: '된장찌개', category: '한식', tags: ['국물','든든하게'] },
+    { name: '순두부찌개', category: '한식', tags: ['국물','든든하게'] },
+    { name: '해장국', category: '한식', tags: ['국물','든든하게'] },
+    { name: '육개장', category: '한식', tags: ['국물','매운거'] },
+    { name: '냉면', category: '한식', tags: ['시원한거'] },
+    { name: '비빔냉면', category: '한식', tags: ['시원한거','매운거'] },
+    { name: '칼국수', category: '한식', tags: ['국물','든든하게'] },
+    { name: '콩나물국밥', category: '한식', tags: ['국물','든든하게'] },
+    { name: '보쌈', category: '한식', tags: ['든든하게','즐겁게'] },
+    { name: '족발', category: '한식', tags: ['든든하게','즐겁게'] },
+    { name: '떡볶이', category: '분식', tags: ['매운거','가볍게','즐겁게'] },
+    { name: '라면', category: '분식', tags: ['국물','간편하게'] },
+    { name: '브리또', category: '패스트푸드', tags: ['간편하게','가볍게'] },
+    { name: '타코', category: '패스트푸드', tags: ['간편하게','즐겁게'] },
+    { name: '닭가슴살샐러드', category: '샐러드/건강식', tags: ['건강하게','가볍게'] },
+    { name: '연어샐러드', category: '샐러드/건강식', tags: ['건강하게','시원한거'] },
+    { name: '아보카도샐러드', category: '샐러드/건강식', tags: ['건강하게','가볍게'] },
+    { name: '포케', category: '샐러드/건강식', tags: ['건강하게','시원한거','가볍게'] },
+    { name: '현미도시락', category: '샐러드/건강식', tags: ['건강하게','든든하게'] },
+    { name: '죽', category: '기타/간편식', tags: ['간편하게','건강하게'] },
+    { name: '크로플', category: '기타/디저트', tags: ['즐겁게','간편하게'] },
+    { name: '와플', category: '기타/디저트', tags: ['즐겁게','간편하게'] },
+    { name: '커피세트', category: '기타/디저트', tags: ['즐겁게','가볍게'] },
+  ];
+
+  const CAT_MAP_KO = {
+    '기타':'etc', '기타/간편식':'etc', '기타/디저트':'dessert',
+    '한식':'korean', '일식':'japanese', '중식':'chinese', '양식':'western',
+    '밥/덮밥':'rice', '샐러드/건강식':'salad', '샌드위치/브런치':'sandwich',
+    '패스트푸드':'fast', '동남아식':'seasia', '베트남식':'vietnamese', '태국식':'thai',
+    '분식':'etc'
+  };
+  const TAG_MAP_KO = {
+    '간편하게':'quick','가볍게':'light','든든하게':'heavy','매운거':'spicy','국물':'soup','시원한거':'cold','건강하게':'light','즐겁게':null
+  };
+  function mapKoTags(tags){
+    const out=[]; const seen=new Set();
+    (tags||[]).forEach(t=>{ const id = TAG_MAP_KO[t]; if(id && !seen.has(id)){ seen.add(id); out.push(id); } });
+    return out;
+  }
+  function buildNewItems(){
+    return NEW_MENU_RAW.map(x=>({ name:x.name, cat: (CAT_MAP_KO[x.category]||'etc'), tags: mapKoTags(x.tags||[]) }));
+  }
 
   // Additional curated items to merge (dedup by name)
   const EXTRA_ITEMS = [
@@ -201,7 +323,15 @@
 
   function migrate(){
     const ver = storage.get('lm_schema_version',0);
-    if(ver < SCHEMA_VERSION){ ensureDefaultsMerged(); storage.set('lm_schema_version',SCHEMA_VERSION); saveState(); }
+    if(ver < 9){
+      // Replace items with the new curated dataset
+      state.items = buildNewItems();
+      ensureDefaultsMerged();
+      storage.set('lm_schema_version',9);
+      saveState();
+    } else if(ver < SCHEMA_VERSION){
+      ensureDefaultsMerged(); storage.set('lm_schema_version',SCHEMA_VERSION); saveState();
+    }
   }
 
   // Helpers
@@ -280,6 +410,10 @@
   function matches(it, cond){
     if(!cond || !cond.length) return true;
     const n=it.name, c=it.cat;
+    // Prefer explicit tags on items if present
+    if(it && Array.isArray(it.tags) && it.tags.length){
+      return cond.every(k => it.tags.includes(k));
+    }
     const tests={
       quick: ()=> c==='sandwich'||c==='fast'||/김밥|샌드위치|토스트|반미|버거|컵밥|오니기리/.test(n),
       light: ()=> c==='salad'||c==='vietnamese'||/샐러드|포케|수프/.test(n),
