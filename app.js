@@ -597,6 +597,7 @@
 
   // Seasonal\n  function renderSeasonal(){\n    if(!els.seasonalList) return;\n    const m = (new Date()).getMonth()+1;\n    let combos = [];\n    if([12,1,2].includes(m)) combos = [['soup','heavy'], ['soup']];\n    else if([3].includes(m)) combos = [['light','soup'], ['light']];\n    else if([4,5].includes(m)) combos = [['light'], ['light','soup']];\n    else if([6,7,8].includes(m)) combos = [['cold','light'], ['cold'], ['light']];\n    else if([9].includes(m)) combos = [['heavy'], ['soup','heavy']];\n    else if([10].includes(m)) combos = [['heavy','soup'], ['heavy']];\n    else if([11].includes(m)) combos = [['soup','heavy'], ['soup']];\n\n    const seen = new Set();\n    let pool = [];\n    const items = (state.items||[]);\n    combos.forEach(tags => {\n      items.forEach(it => {\n        if(seen.has(it.name)) return;\n        if(matches(it, tags)) { seen.add(it.name); pool.push(it.name); }\n      });\n    });\n    if(pool.length===0){\n      const alt = (m>=6&&m<=8) ? ['light'] : ['soup'];\n      items.forEach(it=>{ if(!seen.has(it.name) && matches(it, alt)) { seen.add(it.name); pool.push(it.name); } });\n    }\n    for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=pool[i]; pool[i]=pool[j]; pool[j]=t; }\n    const list = pool.slice(0,6);\n    els.seasonalList.innerHTML = '';\n    list.forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });\n    if(els.seasonalTitle) els.seasonalTitle.textContent = m + '월 제철음식 추천';\n  }\n  // Render all menu items in bottom list\n  function renderAllMenu(){(){
     if(!els.allMenuList) return;
+    return renderSeasonalFromDataset();
     const listEl = els.allMenuList;
     listEl.innerHTML = '';
     const label = new Map(state.categories.map(c=>[c.id,c.name]));
@@ -715,13 +716,39 @@
     });
   }
 
+  // Seasonal dataset fetcher (real info)
+  async function renderSeasonalFromDataset(){
+    try{
+      if(!els.seasonalList) return;
+      const m = (new Date()).getMonth()+1;
+      const url = 'seasonal_kr.json?v=2025-01-15-1';
+      const cacheKey = 'lm_seasonal_'+m;
+      let list = [];
+      try{
+        const cached = JSON.parse(localStorage.getItem(cacheKey)||'null');
+        if(cached && Array.isArray(cached) && cached.length) list = cached;
+      }catch{}
+      if(list.length===0){
+        const r = await fetch(url, { cache:'no-store' });
+        if(r.ok){ const data = await r.json(); list = (data && data[String(m)]) || []; }
+      }
+      els.seasonalList.innerHTML = '';
+      (list.slice(0,6)).forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
+      try{ localStorage.setItem(cacheKey, JSON.stringify(list)); }catch{}
+      if(els.seasonalTitle) els.seasonalTitle.textContent = m + '월 제철음식';
+    }catch{}
+  }
+
   // Init
   migrate();
   // 항상 초기화된 상태로 시작
   state.selectedCats = new Set(state.categories.map(c=>c.id)); saveState();
-  renderSeasonal();
+  renderSeasonalFromDataset ? renderSeasonalFromDataset() : renderSeasonal();
   // Derive categories from current items and reset selection
   rebuildCategoriesFromItems();
+  if(!state.items || !Array.isArray(state.items) || state.items.length===0){
+    try { state.items = buildNewItems(); saveState(); rebuildCategoriesFromItems(); } catch {}
+  }
   state.selectedCats = new Set(state.categories.map(c=>c.id)); saveState();
   renderActiveCats();
   renderActiveTags();
