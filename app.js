@@ -416,7 +416,7 @@
   els.seasonalList.innerHTML = '';
   list.forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
   if(els.seasonalTitle) els.seasonalTitle.textContent = m + '\uC6D4 \uC81C\uCCA0\uC74C\uC2DD';
-}}
+}
   // Render all menu items in bottom list
   function renderAllMenu(){
     if(!els.allMenuList) return;
