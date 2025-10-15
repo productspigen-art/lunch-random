@@ -65,6 +65,15 @@ body{
 .ghost-btn{padding:10px 12px;background:transparent;border:1px solid var(--border)}
 .link-btn{background:transparent;color:var(--primary);padding:6px 8px}
 
+/* Match CTA buttons size and enlarge */
+.cta-row .primary-btn,
+.cta-row .secondary-btn{
+  font-size:1.15rem;
+  padding:16px 20px;
+  min-height:54px;
+  min-width:180px;
+}
+
 .result-card{display:grid;gap:10px}
 .large-result{min-height:160px;position:relative;overflow:hidden}
 .large-result{border:1px solid rgba(232,90,44,.18);border-radius:18px;background:#fff;box-shadow:0 12px 28px rgba(232,90,44,.10), 0 2px 4px rgba(0,0,0,.04);padding:12px;display:flex;align-items:center;justify-content:center}
