@@ -17,7 +17,6 @@
     activeCatBar: document.getElementById('activeCatBar'),
     activeTagLabel: document.getElementById('activeTagLabel'),
     activeTagBar: document.getElementById('activeTagBar'),
-    allMenuList: document.getElementById('allMenuList'),
   };
 
   const state = {
@@ -42,7 +41,6 @@
     state.activeCats = new Set(state.categories.map(c=>c.id));
     renderActiveCats();
     renderActiveTags();
-    renderAllMenu();
   }
 
   // 4) 메뉴데이터를 바탕으로 카테고리 자동 구성
