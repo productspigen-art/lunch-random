@@ -717,6 +717,37 @@
     });
   }
 
+  // Condition sheet open/close helpers
+  function openSheet(){
+    if(els.conditionSheet){
+      tempCond.tags = [...(state.activeTags||[])];
+      tempCond.cats = new Set(state.activeCats);
+      renderCondSheet();
+      els.conditionSheet.hidden = false;
+    }
+  }
+  function closeSheet(){ if(els.conditionSheet){ els.conditionSheet.hidden = true; } }
+
+  // Wire up main actions
+  if(els.spinQuickBtn){
+    els.spinQuickBtn.addEventListener('click', ()=>{ spinOnce(); });
+  }
+  if(els.spinWithCondBtn){
+    els.spinWithCondBtn.addEventListener('click', openSheet);
+  }
+  if(els.applyCondBtn){
+    els.applyCondBtn.addEventListener('click', ()=>{
+      state.activeCats = new Set(tempCond.cats);
+      state.activeTags = [...tempCond.tags];
+      renderActiveCats();
+      renderActiveTags();
+      closeSheet();
+      spinOnce({ tags:[...tempCond.tags], cats:new Set(tempCond.cats) });
+    });
+  }
+  if(els.closeSheetBtn){
+    els.closeSheetBtn.addEventListener('click', closeSheet);
+  }
   // Seasonal hardcoded dataset (no network)
   const SEASONAL_KR = {
     1:[ '굴','방어','딸기','대파','우엉','무' ],
