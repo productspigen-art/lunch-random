@@ -595,32 +595,7 @@
     }, 900);
   }
 
-  // Seasonal
-  function renderSeasonal(){
-  if(!els.seasonalList) return;
-  const M = {
-    1:['\uADE4','\uACFC\uBA54\uAE30','\uBBF8\uB098\uB9AC'],
-    2:['\uAD11\uC5EC','\uAF2C\uB9DD','\uB530\uAE30'],
-    3:['\uC8FC\uAFCD\uBBF8','\uB3C4\uB2E4\uB9AC','\uB0AD\uC774'],
-    4:['\uC8FC\uAFCD\uBBF8','\uBA5C\uAC1C','\uCC38\uB098\uBB3C'],
-    5:['\uCBE0\uAFCD\uBBF8','\uB9E4\uC2E4','\uC8FC\uD0A4\uB2C8'],
-    6:['\uCC38\uCE58','\uBCD1\uC5EC','\uBE14\uB8E8\uBCA0\uB9AC'],
-    7:['\uBB38\uC5EC','\uC218\uBC15','\uC625\uC218\uC218'],
-    8:['\uC804\uBCF5','\uAC08\uCE58','\uBCF5\uC1C4\uC544'],
-    9:['\uC804\uC5EC','\uAF43\uAC1C','\uBC30'],
-    10:['\uC804\uC5EC','\uB300\uD558','\uBC30\uCD94'],
-    11:['\uBC29\uC5EC','\uAD74','\uAC10\uADE4'],
-    12:['\uBC29\uC5EC','\uAF2C\uB9DD','\uAC10\uADE4']
-  };
-  const now = new Date();
-  const m = now.getMonth()+1;
-  const list = M[m] || [];
-  els.seasonalList.innerHTML = '';
-  (list.slice(0,6)).forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
-  if(els.seasonalTitle) els.seasonalTitle.textContent = m + '\uC6D4 \uC81C\uCCA0\uC74C\uC2DD';
-}
-  // Render all menu items in bottom list
-  function renderAllMenu(){
+  // Seasonal\n  function renderSeasonal(){\n    if(!els.seasonalList) return;\n    const m = (new Date()).getMonth()+1;\n    let combos = [];\n    if([12,1,2].includes(m)) combos = [['soup','heavy'], ['soup']];\n    else if([3].includes(m)) combos = [['light','soup'], ['light']];\n    else if([4,5].includes(m)) combos = [['light'], ['light','soup']];\n    else if([6,7,8].includes(m)) combos = [['cold','light'], ['cold'], ['light']];\n    else if([9].includes(m)) combos = [['heavy'], ['soup','heavy']];\n    else if([10].includes(m)) combos = [['heavy','soup'], ['heavy']];\n    else if([11].includes(m)) combos = [['soup','heavy'], ['soup']];\n\n    const seen = new Set();\n    let pool = [];\n    const items = (state.items||[]);\n    combos.forEach(tags => {\n      items.forEach(it => {\n        if(seen.has(it.name)) return;\n        if(matches(it, tags)) { seen.add(it.name); pool.push(it.name); }\n      });\n    });\n    if(pool.length===0){\n      const alt = (m>=6&&m<=8) ? ['light'] : ['soup'];\n      items.forEach(it=>{ if(!seen.has(it.name) && matches(it, alt)) { seen.add(it.name); pool.push(it.name); } });\n    }\n    for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=pool[i]; pool[i]=pool[j]; pool[j]=t; }\n    const list = pool.slice(0,6);\n    els.seasonalList.innerHTML = '';\n    list.forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });\n    if(els.seasonalTitle) els.seasonalTitle.textContent = m + '월 제철음식 추천';\n  }\n  // Render all menu items in bottom list\n  function renderAllMenu(){(){
     if(!els.allMenuList) return;
     const listEl = els.allMenuList;
     listEl.innerHTML = '';
