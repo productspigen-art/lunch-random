@@ -178,6 +178,24 @@
     return NEW_MENU_RAW.map(x=>({ name:x.name, cat: (CAT_MAP_KO[x.category]||'etc'), tags: mapKoTags(x.tags||[]) }));
   }
 
+  // Update existing items' tags from external KO dataset file (same-origin)
+  async function updateTagsFromExternal(){
+    try{
+      const res = await fetch('menu_dataset_5tags.json?v=2025-01-15-1', { cache:'no-store' });
+      if(!res.ok) return;
+      const data = await res.json();
+      const map = new Map((Array.isArray(data)?data:[]).map(x=>[x.name, mapKoTags(x.tags||[])]));
+      if(map.size===0) return;
+      let changed=false;
+      state.items = (state.items||[]).map(it=>{
+        const t = map.get(it.name);
+        if(t && t.length){ if(!it.tags || it.tags.join(',')!==t.join(',')){ changed=true; return Object.assign({}, it, { tags:t }); } }
+        return it;
+      });
+      if(changed){ saveState(); renderActiveTags(); renderAllMenu(); }
+    }catch{}
+  }
+
   // Additional curated items to merge (dedup by name)
   const EXTRA_ITEMS = [
     // 도시락/덮밥/밥류
@@ -704,6 +722,8 @@
   setNearbyInfo();
   tryInitKakao();
   initWeather();
+  // Apply external KO tags dataset after first paint
+  updateTagsFromExternal();
 })();
 
 
