@@ -268,9 +268,29 @@
       }catch{}
     })();
 
+    async function initAdMob(){
+      try{
+        const cap = window.Capacitor || {};
+        const plugins = (cap.Plugins||cap.plugins||{});
+        const AdMob = plugins.AdMob;
+        if(!AdMob) return; // Plugin not available (e.g., web)
+
+        await AdMob.initialize({ requestTrackingAuthorization: false });
+        // Show adaptive banner at bottom
+        await AdMob.showBanner({
+          adId: 'ca-app-pub-2173296428991687/8121877682',
+          adSize: 'ADAPTIVE_BANNER',
+          position: 'BOTTOM_CENTER'
+        });
+      }catch(e){
+        console.warn('AdMob init failed:', e);
+      }
+    }
+
     (async function init(){
       await loadMenus();
       await renderSeasonal();
+      await initAdMob();
     })();
   };
 
@@ -281,4 +301,3 @@
     run();
   }
 })();
-
