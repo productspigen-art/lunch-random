@@ -1,4 +1,4 @@
-// app.js (index 수정 불필요)
+// app.js
 (function start(){
   const run = () => {
     const els = {
@@ -31,7 +31,7 @@
       hadNoResults: false
     };
 
-    // 1) 메뉴 데이터 연결
+    // 1) 메뉴 데이터 로드
     async function loadMenus(){
       try{
         const res = await fetch('./menu_dataset_full_5tags_with_category.json?v=2025-01-15-1', { cache:'no-store' });
@@ -41,20 +41,19 @@
           name: String(x.name||'').trim(),
           catLabel: String(x.category||'').trim(),
           tags: Array.isArray(x.tags)? x.tags.map(t=>String(t).trim()) : []
-        }));
+        })) || [];
         rebuildCategories();
         buildAllTags();
-        // 기본: 아무 필터도 선택되지 않게 유지
         state.activeCats = new Set();
         renderActiveCats();
         renderActiveTags();
       }catch(e){
         console.error('메뉴 JSON 로드 실패:', e);
-        els.result && (els.result.textContent = '메뉴 데이터를 불러오지 못했습니다.');
+        if (els.result) els.result.textContent = '메뉴 데이터를 불러오지 못했어요';
       }
     }
 
-    // 개선된 스핀: 결과 없음 상태를 추적하고 적절히 회전
+    // 결과 애니메이션 + 룰렛
     function spin(cond){
       if(!els.result) return;
       let pool = (state.items||[]).slice();
@@ -64,7 +63,7 @@
       if(useTags && useTags.length){ pool = pool.filter(it=> useTags.every(t => (it.tags||[]).includes(t))); }
       if(!pool.length){
         state.hadNoResults = true;
-        els.result && (els.result.textContent = '조건에 맞는 메뉴가 없어요');
+        els.result.textContent = '조건에 맞는 메뉴가 없어요';
         return;
       }
       state.hadNoResults = false;
@@ -75,7 +74,7 @@
       setTimeout(()=>{ clearInterval(tmp); const final=pool[Math.floor(Math.random()*pool.length)]; els.result.textContent=final.name; },900);
     }
 
-    // 현재 활성 필터 풀 계산 및 필요 시 자동 스핀
+    // 현재 필터 반영한 풀 계산
     function currentFilteredPool(){
       let pool = (state.items||[]).slice();
       const useCats = state.activeCats && state.activeCats.size>0 ? state.activeCats : null;
@@ -114,7 +113,7 @@
       if(!els.activeCatBar) return;
       els.activeCatBar.innerHTML='';
       const ids = Array.from(state.activeCats||[]);
-      if(ids.length===0){ els.activeCatBar.hidden=true; els.activeCatLabel && (els.activeCatLabel.hidden=true); return; }
+      if(ids.length===0){ els.activeCatBar.hidden=true; if(els.activeCatLabel) els.activeCatLabel.hidden=true; return; }
       ids.forEach(id=>{
         const b=document.createElement('button');
         b.type='button'; b.className='chip'; b.textContent=id;
@@ -127,14 +126,14 @@
         els.activeCatBar.appendChild(b);
       });
       els.activeCatBar.hidden=false;
-      els.activeCatLabel && (els.activeCatLabel.hidden=false);
+      if(els.activeCatLabel) els.activeCatLabel.hidden=false;
     }
 
     function renderActiveTags(){
       if(!els.activeTagBar) return;
       els.activeTagBar.innerHTML='';
       const arr = state.activeTags||[];
-      if(arr.length===0){ els.activeTagBar.hidden=true; els.activeTagLabel && (els.activeTagLabel.hidden=true); return; }
+      if(arr.length===0){ els.activeTagBar.hidden=true; if(els.activeTagLabel) els.activeTagLabel.hidden=true; return; }
       arr.forEach(label=>{
         const b=document.createElement('button');
         b.type='button'; b.className='chip'; b.textContent=label;
@@ -148,7 +147,7 @@
         els.activeTagBar.appendChild(b);
       });
       els.activeTagBar.hidden=false;
-      els.activeTagLabel && (els.activeTagLabel.hidden=false);
+      if(els.activeTagLabel) els.activeTagLabel.hidden=false;
     }
 
     // 조건 시트
@@ -181,48 +180,7 @@
       }
     }
 
-    // 3) 룰렛
-    function spinOnce(cond){
-      if(!els.result) return;
-
-      let pool = (state.items||[]).slice();
-
-      const useCats = (cond && cond.cats && cond.cats.size>0)
-        ? cond.cats
-        : (state.activeCats.size>0 ? state.activeCats : null);
-
-      if(useCats){ pool = pool.filter(it=>useCats.has(it.catLabel)); }
-
-      const useTags = (cond && cond.tags && cond.tags.length>0)
-        ? cond.tags
-        : (state.activeTags||[]);
-
-      if(useTags && useTags.length){
-        pool = pool.filter(it=> useTags.every(t => (it.tags||[]).includes(t)));
-      }
-
-      if(!pool.length){
-        els.result.textContent='조건에 맞는 메뉴가 없어요';
-        return;
-      }
-
-      els.result.classList.remove('flip-start');
-      void els.result.offsetWidth;
-      els.result.classList.add('flip-start');
-
-      const tmp=setInterval(()=>{
-        const t=pool[Math.floor(Math.random()*pool.length)];
-        els.result.textContent=t.name;
-      },70);
-
-      setTimeout(()=>{
-        clearInterval(tmp);
-        const final=pool[Math.floor(Math.random()*pool.length)];
-        els.result.textContent=final.name;
-      },900);
-    }
-
-    // 4) 제철음식
+    // 4) 제철 음식
     async function renderSeasonal(){
       try{
         if(!els.seasonalList) return;
@@ -238,7 +196,7 @@
           d.textContent=n;
           els.seasonalList.appendChild(d);
         });
-        els.seasonalTitle && (els.seasonalTitle.textContent=m+'월 제철음식');
+        if(els.seasonalTitle) els.seasonalTitle.textContent=`${m}월 제철 음식`;
       }catch(e){
         console.error('제철 JSON 로드 실패:', e);
       }
@@ -253,7 +211,7 @@
         els.conditionSheet.hidden=false;
       }
     }
-    function closeSheet(){ els.conditionSheet && (els.conditionSheet.hidden=true); }
+    function closeSheet(){ if(els.conditionSheet) els.conditionSheet.hidden=true; }
 
     els.spinQuickBtn && els.spinQuickBtn.addEventListener('click', ()=> spin({
       tags:[...(state.activeTags||[])],
@@ -278,7 +236,7 @@
       renderCondSheet();
     });
 
-    // 6) 공유 버튼
+    // 공유 버튼
     els.shareBtn && els.shareBtn.addEventListener('click', async ()=>{
       const name = (els.result && (els.result.textContent||'').trim()) || '';
       const url = (typeof location!=='undefined' && location.href) ? location.href : '';
@@ -292,15 +250,14 @@
           t.select(); document.execCommand('copy'); document.body.removeChild(t);
         }
         const prev = els.shareBtn.textContent;
-        els.shareBtn.textContent='복사됨!';
+        els.shareBtn.textContent='복사됨';
         setTimeout(()=> els.shareBtn.textContent=prev, 1200);
       }catch(e){
-        console.error('클립보드 에러:', e);
+        console.error('클립보드 오류:', e);
       }
     });
 
-    // 7) 초기화
-    // CTA를 결과 카드 아래로 이동
+    // 초기 작업: CTA 위치 조정, 데이터 로드
     (function moveCtas(){
       try{
         const cta = document.querySelector('.cta-row');
@@ -317,10 +274,11 @@
     })();
   };
 
-  // DOM 준비 여부에 따라 자동 실행 (index 수정 불필요)
+  // DOM 준비 상태에 따라 실행
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', run, { once: true });
   } else {
     run();
   }
 })();
+

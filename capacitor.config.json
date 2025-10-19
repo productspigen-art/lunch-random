@@ -1,0 +1,9 @@
+{
+  "appId": "com.jhtech.randomlunch",
+  "appName": "점심 뭐먹지",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
+

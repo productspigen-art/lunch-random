@@ -1,0 +1,31 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Build outputs
+www/
+dist/
+build/
+
+# Capacitor/Android
+android/.gradle/
+android/local.properties
+android/**/build/
+android/app/build/
+android/app/keystore/
+android/keystore/
+android/release
+
+# Capacitor/iOS
+ios/App/build/
+ios/Pods/
+
+# IDE
+.idea/
+*.iml
+*.log
+.DS_Store
+
+# Secrets
+android/gradle.properties
+
