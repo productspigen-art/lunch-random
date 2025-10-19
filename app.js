@@ -27,7 +27,8 @@
       categories: [],
       activeCats: new Set(),
       activeTags: [],
-      allTags: []
+      allTags: [],
+      hadNoResults: false
     };
 
     // 1) 메뉴 데이터 연결
@@ -50,6 +51,45 @@
       }catch(e){
         console.error('메뉴 JSON 로드 실패:', e);
         els.result && (els.result.textContent = '메뉴 데이터를 불러오지 못했습니다.');
+      }
+    }
+
+    // 개선된 스핀: 결과 없음 상태를 추적하고 적절히 회전
+    function spin(cond){
+      if(!els.result) return;
+      let pool = (state.items||[]).slice();
+      const useCats = (cond && cond.cats && cond.cats.size>0) ? cond.cats : (state.activeCats.size>0 ? state.activeCats : null);
+      if(useCats){ pool = pool.filter(it=>useCats.has(it.catLabel)); }
+      const useTags = (cond && cond.tags && cond.tags.length>0) ? cond.tags : (state.activeTags||[]);
+      if(useTags && useTags.length){ pool = pool.filter(it=> useTags.every(t => (it.tags||[]).includes(t))); }
+      if(!pool.length){
+        state.hadNoResults = true;
+        els.result && (els.result.textContent = '조건에 맞는 메뉴가 없어요');
+        return;
+      }
+      state.hadNoResults = false;
+      els.result.classList.remove('flip-start');
+      void els.result.offsetWidth;
+      els.result.classList.add('flip-start');
+      const tmp=setInterval(()=>{ const t=pool[Math.floor(Math.random()*pool.length)]; els.result.textContent=t.name; },70);
+      setTimeout(()=>{ clearInterval(tmp); const final=pool[Math.floor(Math.random()*pool.length)]; els.result.textContent=final.name; },900);
+    }
+
+    // 현재 활성 필터 풀 계산 및 필요 시 자동 스핀
+    function currentFilteredPool(){
+      let pool = (state.items||[]).slice();
+      const useCats = state.activeCats && state.activeCats.size>0 ? state.activeCats : null;
+      if(useCats){ pool = pool.filter(it=>useCats.has(it.catLabel)); }
+      const useTags = state.activeTags||[];
+      if(useTags.length){ pool = pool.filter(it=> useTags.every(t => (it.tags||[]).includes(t))); }
+      return pool;
+    }
+
+    function maybeSpinOnFilterChange(){
+      if(!state.hadNoResults) return;
+      const pool = currentFilteredPool();
+      if(pool.length>0){
+        spin({ tags:[...(state.activeTags||[])], cats:new Set(state.activeCats||[]) });
       }
     }
 
@@ -82,6 +122,7 @@
         b.addEventListener('click', ()=>{
           state.activeCats.delete(id);
           renderActiveCats();
+          maybeSpinOnFilterChange();
         });
         els.activeCatBar.appendChild(b);
       });
@@ -102,6 +143,7 @@
           const i=state.activeTags.indexOf(label);
           if(i>=0) state.activeTags.splice(i,1);
           renderActiveTags();
+          maybeSpinOnFilterChange();
         });
         els.activeTagBar.appendChild(b);
       });
@@ -213,7 +255,7 @@
     }
     function closeSheet(){ els.conditionSheet && (els.conditionSheet.hidden=true); }
 
-    els.spinQuickBtn && els.spinQuickBtn.addEventListener('click', ()=> spinOnce({
+    els.spinQuickBtn && els.spinQuickBtn.addEventListener('click', ()=> spin({
       tags:[...(state.activeTags||[])],
       cats:new Set(state.activeCats||[])
     }));
@@ -224,7 +266,7 @@
       renderActiveCats();
       renderActiveTags();
       closeSheet();
-      spinOnce({ tags:[...tempCond.tags], cats:new Set(tempCond.cats) });
+      spin({ tags:[...tempCond.tags], cats:new Set(tempCond.cats) });
     });
     els.closeSheetBtn && els.closeSheetBtn.addEventListener('click', closeSheet);
     els.selectAllCatsBtn && els.selectAllCatsBtn.addEventListener('click', ()=>{
