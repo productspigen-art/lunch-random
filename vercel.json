@@ -1,6 +1,9 @@
 {
   "version": 2,
   "public": true,
+  "builds": [
+    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "www" } }
+  ],
   "headers": [
     {
       "source": "/(.*)\\.(css|js)",
