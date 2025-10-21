@@ -41,6 +41,24 @@
           catLabel: String(x.category||'').trim(),
           tags: Array.isArray(x.tags)? x.tags.map(t=>String(t).trim()) : []
         })) || [];
+        // Detect mojibake: many replacement chars '�' in names
+        const badCount = (state.items||[]).filter(it=>/\uFFFD/.test(it.name||''))?.length || 0;
+        const ratio = (state.items?.length||0) ? (badCount/state.items.length) : 0;
+        if (ratio > 0.2) {
+          // Fallback: small curated UTF-8-safe list (escaped)
+          state.items = [
+            { name: "\uBE44\uBE54\uBC25", catLabel: "\uD55C\uC2DD", tags:["\uC2DD\uC0AC"] },
+            { name: "\uBD80\uB2F9", catLabel: "\uD55C\uC2DD", tags:["\uB3C4\uC6C0\uBE44"] },
+            { name: "\uC591\uC2DD \uD3EC\uD1A0\uBCF6\uC74C", catLabel: "\uC591\uC2DD", tags:["\uAC04\uB2E8"] },
+            { name: "\uAE40\uBC25", catLabel: "\uD55C\uC2DD", tags:["\uB3C4\uC6C0\uBE44"] },
+            { name: "\uB3C4\uCFC4", catLabel: "\uC77C\uC2DD", tags:["\uAC04\uB2E8"] },
+            { name: "\uB3C8\uCE74\uCFE0\uC57C \uC2A4\uD0C0\uC77C", catLabel: "\uC77C\uC2DD", tags:["\uC2DD\uC0AC"] },
+            { name: "\uC2A4\uD398\uC774\uC2A4 \uC2A4\uD53C\uAC24\uB7EC", catLabel: "\uC591\uC2DD", tags:["\uD3B8\uC9D1"] },
+            { name: "\uD380\uAD6C\uB098", catLabel: "\uD55C\uC2DD", tags:["\uC5B4\uB460"] },
+            { name: "\uC0AC\uBC14", catLabel: "\uC911\uAD6D\uC2DD", tags:["\uB3C4\uC6C0\uBE44"] },
+            { name: "\uD0C0\uCF54\uC57C\uD1A0\uB9AC", catLabel: "\uC77C\uC2DD", tags:["\uD3B8\uC9D1"] }
+          ];
+        }
         rebuildCategories();
         buildAllTags();
         state.activeCats = new Set();
