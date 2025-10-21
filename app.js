@@ -31,10 +31,9 @@
       hadNoResults: false
     };
 
-    // 1) 硫붾돱 JSON 濡쒕뱶
     async function loadMenus(){
       try{
-        const res = await fetch('./menu_dataset_full_5tags_with_category.json?v=2025-01-15-2', { cache:'no-store' });
+        const res = await fetch('./menu_dataset_full_5tags_with_category.json?v=2025-01-15-3', { cache:'no-store' });
         if(!res.ok) throw new Error('menus ' + res.status);
         const data = await res.json();
         state.items = (Array.isArray(data)?data:[]).map(x=>({
@@ -48,12 +47,11 @@
         renderActiveCats();
         renderActiveTags();
       }catch(e){
-        console.error('硫붾돱 JSON 濡쒕뱶 ?ㅽ뙣:', e);
-        if (els.result) els.result.textContent = '硫붾돱 ?곗씠?곕? 遺덈윭?ㅼ? 紐삵뻽?댁슂';
+        console.error('메뉴 JSON 로드 실패:', e);
+        if (els.result) els.result.textContent = '메뉴 데이터를 불러오지 못했어요';
       }
     }
 
-    // 猷곕젢 + 濡쒖쭅
     function spin(cond){
       if(!els.result) return;
       let pool = (state.items||[]).slice();
@@ -63,7 +61,7 @@
       if(useTags && useTags.length){ pool = pool.filter(it=> useTags.every(t => (it.tags||[]).includes(t))); }
       if(!pool.length){
         state.hadNoResults = true;
-        els.result.textContent = '議곌굔??留욌뒗 硫붾돱媛 ?놁뼱??;
+        els.result.textContent = '조건에 맞는 메뉴가 없어요';
         return;
       }
       state.hadNoResults = false;
@@ -86,12 +84,9 @@
     function maybeSpinOnFilterChange(){
       if(!state.hadNoResults) return;
       const pool = currentFilteredPool();
-      if(pool.length>0){
-        spin({ tags:[...(state.activeTags||[])], cats:new Set(state.activeCats||[]) });
-      }
+      if(pool.length>0){ spin({ tags:[...(state.activeTags||[])], cats:new Set(state.activeCats||[]) }); }
     }
 
-    // 2) 移댄뀒怨좊━/?쒓렇 ?좏떥
     function rebuildCategories(){
       const m = new Map();
       (state.items||[]).forEach(it=>{ if(it.catLabel){ m.set(it.catLabel,{ id: it.catLabel, name: it.catLabel }); } });
@@ -136,7 +131,6 @@
       els.activeTagBar.hidden=false; if(els.activeTagLabel) els.activeTagLabel.hidden=false;
     }
 
-    // 議곌굔 ?쒗듃
     const tempCond={ tags:[], cats:new Set() };
     function renderCondSheet(){
       if(els.condCatChips){
@@ -159,7 +153,6 @@
       }
     }
 
-    // ?쒖쿋 ?뚯떇
     async function renderSeasonal(){
       try{
         if(!els.seasonalList) return;
@@ -170,11 +163,11 @@
         const list=(data&&data[String(m)])||[];
         els.seasonalList.innerHTML='';
         list.slice(0,6).forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
-        if(els.seasonalTitle) els.seasonalTitle.textContent=`${m}???쒖쿋 ?뚯떇`;
-      }catch(e){ console.error('seasonal JSON 濡쒕뱶 ?ㅽ뙣:', e); }
+        if(els.seasonalTitle) els.seasonalTitle.textContent=`${m}월 제철 음식`;
+      }catch(e){ console.error('seasonal JSON 로드 실패:', e); }
     }
 
-    // ?대깽??諛붿씤??    function openSheet(){ if(els.conditionSheet){ tempCond.tags=[...(state.activeTags||[])]; tempCond.cats=new Set(state.activeCats||[]); renderCondSheet(); els.conditionSheet.hidden=false; } }
+    function openSheet(){ if(els.conditionSheet){ tempCond.tags=[...(state.activeTags||[])]; tempCond.cats=new Set(state.activeCats||[]); renderCondSheet(); els.conditionSheet.hidden=false; } }
     function closeSheet(){ if(els.conditionSheet) els.conditionSheet.hidden=true; }
 
     els.spinQuickBtn && els.spinQuickBtn.addEventListener('click', ()=> spin({ tags:[...(state.activeTags||[])], cats:new Set(state.activeCats||[]) }));
@@ -184,36 +177,20 @@
     els.selectAllCatsBtn && els.selectAllCatsBtn.addEventListener('click', ()=>{ tempCond.cats=new Set((state.categories||[]).map(c=>c.id)); renderCondSheet(); });
     els.clearCatsBtn && els.clearCatsBtn.addEventListener('click', ()=>{ tempCond.cats=new Set(); renderCondSheet(); });
 
-    // 怨듭쑀 踰꾪듉
     els.shareBtn && els.shareBtn.addEventListener('click', async ()=>{
       const name = (els.result && (els.result.textContent||'').trim()) || '';
       const url = (typeof location!=='undefined' && location.href) ? location.href : '';
-      const payload = [ name ? `?ㅻ뒛 硫붾돱: ${name}` : '', url ].filter(Boolean).join('\n');
+      const payload = [ name ? `오늘 메뉴: ${name}` : '', url ].filter(Boolean).join('\n');
       try{
         if(navigator.clipboard?.writeText){ await navigator.clipboard.writeText(payload); }
-        else {
-          const t=document.createElement('textarea'); t.value=payload; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
-        }
-        const prev = els.shareBtn.textContent; els.shareBtn.textContent='蹂듭궗??; setTimeout(()=> els.shareBtn.textContent=prev, 1200);
-      }catch(e){ console.error('?대┰蹂대뱶 蹂듭궗 ?ㅽ뙣:', e); }
+        else { const t=document.createElement('textarea'); t.value=payload; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
+        const prev = els.shareBtn.textContent; els.shareBtn.textContent='복사됨'; setTimeout(()=> els.shareBtn.textContent=prev, 1200);
+      }catch(e){ console.error('클립보드 복사 실패:', e); }
     });
-
-    // Capacitor AdMob (?뱀뿉?쒕뒗 臾댁떆)
-    async function initAdMob(){
-      try{
-        const cap = window.Capacitor || {};
-        const plugins = (cap.Plugins||cap.plugins||{});
-        const AdMob = plugins.AdMob;
-        if(!AdMob) return; // not native
-        await AdMob.initialize({ requestTrackingAuthorization: false });
-        await AdMob.showBanner({ adId: 'ca-app-pub-2173296428991687/8121877682', adSize: 'ADAPTIVE_BANNER', position: 'BOTTOM_CENTER' });
-      }catch(e){ console.warn('AdMob init failed:', e); }
-    }
 
     (async function init(){
       await loadMenus();
-      await renderSeasonal();\n
-      // 硫붾돱媛 以鍮꾨릺硫???踰?戮묒븘 蹂댁뿬二쇨린
+      await renderSeasonal();
       if ((state.items||[]).length) spin({ tags:[...(state.activeTags||[])], cats:new Set(state.activeCats||[]) });
     })();
   };
@@ -224,4 +201,3 @@
     run();
   }
 })();
-
