@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>오늘 뭐먹지 메뉴 추천</title>
+    <title>&#50724;&#45720; &#47952;&#47673;&#51648; &#47700;&#45684; &#52628;&#52380;</title>
     <meta name="theme-color" content="#ffffff" />
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2173296428991687" crossorigin="anonymous"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,43 +12,43 @@
   </head>
   <body>
     <header class="app-header">
-      <h1>오늘 뭐 먹지? 🤔</h1>
+      <h1>&#50724;&#45720; &#47952; &#47673;&#51648;? &#55358;&#56596;</h1>
       <div id="weatherInfo" class="muted small"></div>
       <div id="nearbyInfo" class="muted small"></div>
     </header>
 
     <main class="container">
       <section class="cta-row">
-        <button id="spinQuickBtn" class="primary-btn cta" type="button" aria-label="메뉴 바로 뽑기">메뉴 바로 뽑기</button>
-        <button id="spinWithCondBtn" class="secondary-btn cta" type="button" aria-label="조건 넣고 뽑기">조건 넣고 뽑기</button>
+        <button id="spinQuickBtn" class="primary-btn cta" type="button" aria-label="&#47700;&#45684; &#48148;&#47196; &#48977;&#44592;">&#47700;&#45684; &#48148;&#47196; &#48977;&#44592;</button>
+        <button id="spinWithCondBtn" class="secondary-btn cta" type="button" aria-label="&#51312;&#44148; &#45347;&#44256; &#48977;&#44592;">&#51312;&#44148; &#45347;&#44256; &#48977;&#44592;</button>
       </section>
 
-      <div id="activeCatLabel" class="active-cats-label" hidden>선택한 카테고리</div>
+      <div id="activeCatLabel" class="active-cats-label" hidden>&#49440;&#53469;&#54620; &#52852;&#53580;&#44256;&#47532;</div>
       <div id="activeCatBar" class="chips active-cats" aria-live="polite" hidden></div>
 
-      <div id="activeTagLabel" class="active-cats-label" hidden>선택한 태그</div>
+      <div id="activeTagLabel" class="active-cats-label" hidden>&#49440;&#53469;&#54620; &#53468;&#44536;</div>
       <div id="activeTagBar" class="chips active-cats" aria-live="polite" hidden></div>
 
       <section aria-labelledby="result-title" class="card result-card large-result" id="resultSection">
-        <h2 id="result-title" class="sr-only">추천 결과</h2>
-        <div id="result" class="result">메뉴 골라볼게요!</div>
+        <h2 id="result-title" class="sr-only">&#52628;&#52380; &#44208;&#44284;</h2>
+        <div id="result" class="result">&#47700;&#45684; &#44264;&#46972;&#48380;&#44172;&#50836;!</div>
       </section>
 
       <div class="info-row">
         <section aria-labelledby="seasonal-title" class="card info-card">
           <div class="card-header">
-            <h2 id="seasonal-title">제철 음식 추천</h2>
+            <h2 id="seasonal-title">&#51228;&#52384; &#51020;&#49885; &#52628;&#52380;</h2>
           </div>
           <div id="seasonalList" class="chips" aria-live="polite"></div>
         </section>
 
         <section aria-labelledby="share-title" class="card info-card share-card">
           <div class="card-header">
-            <h2 id="share-title">친구와 공유하기</h2>
+            <h2 id="share-title">&#52828;&#44396;&#50752; &#44277;&#50976;&#54616;&#44592;</h2>
           </div>
           <div class="share-box">
             <div class="sheet-actions" style="gap:8px">
-              <button id="shareBtn" class="primary-btn" type="button">결과 복사하기</button>
+              <button id="shareBtn" class="primary-btn" type="button">&#44208;&#44284; &#48373;&#49324;&#54616;&#44592;</button>
             </div>
           </div>
         </section>
@@ -57,28 +57,29 @@
       <section id="conditionSheet" class="sheet" hidden>
         <div class="sheet-content card">
           <div class="card-header">
-            <h2>조건 설정</h2>
-            <button id="closeSheetBtn" class="link-btn" type="button">닫기</button>
+            <h2>&#51312;&#44148; &#49444;&#51221;</h2>
+            <button id="closeSheetBtn" class="link-btn" type="button">&#45803;&#44592;</button>
           </div>
           <div class="chips-group" style="margin-top:6px">
-            <div class="group-label">카테고리</div>
-            <div class="chips" id="condCatChips" role="listbox" aria-label="카테고리"></div>
+            <div class="group-label">&#52852;&#53580;&#44256;&#47532;</div>
+            <div class="chips" id="condCatChips" role="listbox" aria-label="&#52852;&#53580;&#44256;&#47532;"></div>
             <div class="sheet-mini-actions">
-              <button id="selectAllCatsBtn" class="link-btn" type="button">전체 선택</button>
-              <button id="clearCatsBtn" class="link-btn" type="button">전체 해제</button>
+              <button id="selectAllCatsBtn" class="link-btn" type="button">&#51204;&#52404; &#49440;&#53469;</button>
+              <button id="clearCatsBtn" class="link-btn" type="button">&#51204;&#52404; &#54644;&#51228;</button>
             </div>
-            <div class="group-label" style="margin-top:6px">태그</div>
-            <div class="chips" id="condTagChips" role="listbox" aria-label="태그"></div>
+            <div class="group-label" style="margin-top:6px">&#53468;&#44536;</div>
+            <div class="chips" id="condTagChips" role="listbox" aria-label="&#53468;&#44536;"></div>
           </div>
           <div class="sheet-actions">
-            <button id="applyCondBtn" class="primary-btn" type="button">이 조건으로 뽑기</button>
+            <button id="applyCondBtn" class="primary-btn" type="button">&#51060; &#51312;&#44148;&#51004;&#47196; &#48977;&#44592;</button>
           </div>
         </div>
       </section>
     </main>
 
-    <footer class="app-footer">제작: JH Tech | 오늘 뭐먹지? 메뉴 골라 드려요!</footer>
+    <footer class="app-footer">&#51228;&#51089;: JH Tech | &#50724;&#45720; &#47952;&#47673;&#51648;? &#47700;&#45684; &#44264;&#46972; &#46300;&#47140;&#50836;!</footer>
 
     <script src="app.js?v=2025-01-15-3"></script>
   </body>
   </html>
+

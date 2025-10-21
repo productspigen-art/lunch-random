@@ -47,8 +47,8 @@
         renderActiveCats();
         renderActiveTags();
       }catch(e){
-        console.error('메뉴 JSON 로드 실패:', e);
-        if (els.result) els.result.textContent = '메뉴 데이터를 불러오지 못했어요';
+        console.error('\uBA54\uB274 JSON \uB85C\uB4DC \uC2E4\uD328:', e);
+        if (els.result) els.result.textContent = '\uBA54\uB274 \uB370\uC774\uD130\uB97C \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC5B4\uC694';
       }
     }
 
@@ -61,7 +61,7 @@
       if(useTags && useTags.length){ pool = pool.filter(it=> useTags.every(t => (it.tags||[]).includes(t))); }
       if(!pool.length){
         state.hadNoResults = true;
-        els.result.textContent = '조건에 맞는 메뉴가 없어요';
+        els.result.textContent = '\uC870\uAC74\uC5D0 \uB9DE\uB294 \uBA54\uB274\uAC00 \uC5C6\uC5B4\uC694';
         return;
       }
       state.hadNoResults = false;
@@ -163,8 +163,8 @@
         const list=(data&&data[String(m)])||[];
         els.seasonalList.innerHTML='';
         list.slice(0,6).forEach(n=>{ const d=document.createElement('div'); d.className='chip'; d.textContent=n; els.seasonalList.appendChild(d); });
-        if(els.seasonalTitle) els.seasonalTitle.textContent=`${m}월 제철 음식`;
-      }catch(e){ console.error('seasonal JSON 로드 실패:', e); }
+        if(els.seasonalTitle) els.seasonalTitle.textContent=`${m}\uC6D4 \uC81C\uCCA0 \uC74C\uC2DD`;
+      }catch(e){ console.error('seasonal JSON \uB85C\uB4DC \uC2E4\uD328:', e); }
     }
 
     function openSheet(){ if(els.conditionSheet){ tempCond.tags=[...(state.activeTags||[])]; tempCond.cats=new Set(state.activeCats||[]); renderCondSheet(); els.conditionSheet.hidden=false; } }
@@ -180,12 +180,12 @@
     els.shareBtn && els.shareBtn.addEventListener('click', async ()=>{
       const name = (els.result && (els.result.textContent||'').trim()) || '';
       const url = (typeof location!=='undefined' && location.href) ? location.href : '';
-      const payload = [ name ? `오늘 메뉴: ${name}` : '', url ].filter(Boolean).join('\n');
+      const payload = [ name ? `\uC624\uB298 \uBA54\uB274: ${name}` : '', url ].filter(Boolean).join('\n');
       try{
         if(navigator.clipboard?.writeText){ await navigator.clipboard.writeText(payload); }
         else { const t=document.createElement('textarea'); t.value=payload; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
-        const prev = els.shareBtn.textContent; els.shareBtn.textContent='복사됨'; setTimeout(()=> els.shareBtn.textContent=prev, 1200);
-      }catch(e){ console.error('클립보드 복사 실패:', e); }
+        const prev = els.shareBtn.textContent; els.shareBtn.textContent='\uBCF5\uC0AC\uB428'; setTimeout(()=> els.shareBtn.textContent=prev, 1200);
+      }catch(e){ console.error('\uD074\uB9BD\uBCF4\uB4DC \uBCF5\uC0AC \uC2E4\uD328:', e); }
     });
 
     (async function init(){
@@ -201,3 +201,4 @@
     run();
   }
 })();
+
